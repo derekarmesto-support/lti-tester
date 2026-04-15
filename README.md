@@ -20,7 +20,7 @@ The most common integration. Uses OAuth 1.0 / HMAC-SHA1 signing.
 |---|---|
 | Consumer Key | Provided by Amira (e.g. `admin.1000243642.ia`) |
 | Consumer Secret | Provided by Amira |
-| User ID Field | How Amira identifies the student — usually `lis_person_sourcedid` (3rd party/sourced ID) or `user_id` (student ID) |
+| User ID Field | How Amira identifies the student or staff member — usually the sourced ID (3rd party ID) or local ID (Student/Teacher ID) |
 | User ID Value | The actual student email or username to test with |
 | Role | Learner for students, Instructor for teachers |
 
