@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react';
 import Lti10Tab from './components/tabs/Lti10Tab.jsx';
 import Lti12Tab from './components/tabs/Lti12Tab.jsx';
 import Lti13Tab from './components/tabs/Lti13Tab.jsx';
-import SignatureValidator from './components/SignatureValidator.jsx';
-import LmsConfigGenerator from './components/LmsConfigGenerator.jsx';
 import HealthCheck from './components/HealthCheck.jsx';
+import ToolsTab from './components/tabs/ToolsTab.jsx';
 
 const isEmbedded = window.self !== window.top;
 
@@ -70,12 +69,7 @@ export default function App() {
       {activeTab === 'lti10' && <Lti10Tab />}
       {activeTab === 'lti12' && <Lti12Tab />}
       {activeTab === 'lti13' && <Lti13Tab />}
-      {activeTab === 'tools' && (
-        <div className="tab-content active">
-          <SignatureValidator defaultOpen />
-          <LmsConfigGenerator defaultOpen />
-        </div>
-      )}
+      {activeTab === 'tools' && <ToolsTab />}
     </>
   );
 }
