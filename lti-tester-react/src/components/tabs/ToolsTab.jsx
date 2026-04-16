@@ -215,7 +215,8 @@ function LmsConfigTool() {
         <div>
           <div className="tool-card-title">LMS Config Generator</div>
           <div className="tool-card-desc">
-            Generate the exact configuration snippet to paste into any LMS when setting up a new Amira LTI integration.
+            Generate the configuration snippet to paste into any LMS for an <strong>LTI 1.0 / 1.1</strong> integration.
+            Uses a Consumer Key + Secret (OAuth 1.0 HMAC-SHA1) — not applicable to LTI 1.3.
           </div>
         </div>
       </div>
@@ -231,6 +232,10 @@ function LmsConfigTool() {
       </div>
 
       <div className="tool-card-body">
+        <div className="lti-version-notice">
+          <span className="lti-version-badge">LTI 1.0 / 1.1 only</span>
+          LTI 1.3 uses a registration flow — no config snippet needed. Use the <strong>LTI 1.3</strong> tab to test those launches.
+        </div>
         <div className="two-col" style={{ marginBottom: 16 }}>
           <div className="field-group" style={{ marginBottom: 0 }}>
             <label htmlFor="lcg-key">Consumer Key</label>

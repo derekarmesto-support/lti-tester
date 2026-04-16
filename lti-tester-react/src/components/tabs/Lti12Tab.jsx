@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { buildLti12Params } from '../../utils/lti.js';
 import { usePersistedState } from '../../utils/usePersistedState.js';
 import DebugLog from '../DebugLog.jsx';
-import CollapsibleSection from '../CollapsibleSection.jsx';
 import SegmentedControl from '../SegmentedControl.jsx';
 
 const LAUNCH_URL = 'https://sso.app.amiralearning.com/dwe-lti-sso/Launch/lti';
@@ -55,11 +54,6 @@ export default function Lti12Tab() {
   const [roles, setRoles]                   = useState('Learner');
   const [givenName, setGivenName]           = useState('');
   const [familyName, setFamilyName]         = useState('');
-  const [contextId, setContextId]           = useState('');
-  const [contextLabel, setContextLabel]     = useState('');
-  const [contextTitle, setContextTitle]     = useState('');
-  const [tcGuid, setTcGuid]                 = useState('');
-  const [tcPlatform, setTcPlatform]         = useState('');
   const [responseFormat, setResponseFormat] = useState('');
   const [outcomesUrl, setOutcomesUrl]       = useState('');
 
@@ -84,8 +78,7 @@ export default function Lti12Tab() {
 
   function getFields() {
     return { consumerKey, consumerSecret, userIdField, userIdValue, roles,
-             givenName, familyName, contextId, contextLabel, contextTitle,
-             tcGuid, tcPlatform, responseFormat, outcomesUrl };
+             givenName, familyName, responseFormat, outcomesUrl };
   }
 
   function handleBlur(field) {
@@ -298,52 +291,6 @@ export default function Lti12Tab() {
             )}
           </div>
         </div>
-
-        <CollapsibleSection title="Context &amp; Platform" tag="optional" shaded>
-          <div className="two-col">
-            <div className="field-group">
-              <label htmlFor="context-id-12">Context ID</label>
-              <input type="text" id="context-id-12" placeholder="course_101"
-                autoComplete="off" spellCheck="false"
-                value={contextId} onChange={e => setContextId(e.target.value)} />
-            </div>
-            <div className="field-group">
-              <label htmlFor="context-label-12">Context Label</label>
-              <input type="text" id="context-label-12" placeholder="ELA-3A"
-                autoComplete="off" spellCheck="false"
-                value={contextLabel} onChange={e => setContextLabel(e.target.value)} />
-            </div>
-          </div>
-          <div className="field-group">
-            <label htmlFor="context-title-12">Context Title</label>
-            <input type="text" id="context-title-12"
-              placeholder="3rd Grade Language Arts — Section A"
-              autoComplete="off" spellCheck="false"
-              value={contextTitle} onChange={e => setContextTitle(e.target.value)} />
-          </div>
-          <div className="two-col">
-            <div className="field-group">
-              <label htmlFor="tc-guid-12">Tool Consumer GUID</label>
-              <input type="text" id="tc-guid-12" placeholder="marion-isd.schoology.com"
-                autoComplete="off" spellCheck="false"
-                value={tcGuid} onChange={e => setTcGuid(e.target.value)} />
-            </div>
-            <div className="field-group">
-              <label htmlFor="tc-platform-12">Platform</label>
-              <div className="select-wrapper">
-                <select id="tc-platform-12" value={tcPlatform}
-                  onChange={e => setTcPlatform(e.target.value)}>
-                  <option value="">— None —</option>
-                  <option value="schoology">Schoology</option>
-                  <option value="canvas">Canvas</option>
-                  <option value="blackboard">Blackboard</option>
-                  <option value="moodle">Moodle</option>
-                  <option value="desire2learn">Desire2Learn</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </CollapsibleSection>
 
         <div className="launch-section">
           <button type="submit" className="btn-primary" disabled={submitting}>

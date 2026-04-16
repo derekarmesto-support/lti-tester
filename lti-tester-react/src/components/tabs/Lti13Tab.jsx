@@ -35,11 +35,8 @@ export default function Lti13Tab() {
   const [keyPair, setKeyPair]           = useState(null);
   const [jwksUrl, setJwksUrl]           = useState('—');
   const [showJwksRow, setShowJwksRow]   = useState(false);
-  const [showSaveBtn, setShowSaveBtn]   = useState(false);
   const [genBtnLabel, setGenBtnLabel]   = useState('⚙ Generate New Key Pair');
   const [genBtnDisabled, setGenBtnDisabled] = useState(false);
-  const [saveBtnLabel, setSaveBtnLabel] = useState('☁ Save Public Key to Server');
-  const [saveBtnDisabled, setSaveBtnDisabled] = useState(false);
   const [copyJwksLabel, setCopyJwksLabel] = useState('Copy');
 
   // validation
@@ -103,25 +100,15 @@ export default function Lti13Tab() {
       const newKeyPair = { privateKeyJwk, publicKeyJwk, publicJwks, kid };
       setKeyPair(newKeyPair);
       sessionStorage.setItem('lti13_private_key', JSON.stringify(privateKeyJwk));
-      setKeyStatus('ready'); setKeyStatusText('Key pair ready. Public key staged for server.');
+      setKeyStatus('ready'); setKeyStatusText('Key pair ready. Share the JWKS URL with Amira.');
       const url = (issuerId.trim() || '') + '?action=jwks';
       setJwksUrl(url);
       setShowJwksRow(true);
-      setShowSaveBtn(true);
       setGenBtnDisabled(false); setGenBtnLabel('⚙ Regenerate Key Pair');
     } catch (err) {
       setKeyStatus('none'); setKeyStatusText('Key generation failed: ' + err.message);
       setGenBtnDisabled(false); setGenBtnLabel('⚙ Generate New Key Pair');
     }
-  }
-
-  function handleSaveJwks() {
-    if (!keyPair) return;
-    setSaveBtnDisabled(true); setSaveBtnLabel('⏳ Saving…');
-    // No Apps Script in React context — show informational message
-    setKeyStatus('ready');
-    setKeyStatusText('Not running in Apps Script — key save skipped. Copy the JWKS URL to share manually.');
-    setSaveBtnDisabled(false);
   }
 
   function handleCopyJwks() {
@@ -213,17 +200,15 @@ export default function Lti13Tab() {
       <div className="setup-info">
         <div className="setup-info-icon">ℹ</div>
         <div>
-          <strong>First time?</strong> Complete LTI 1.3 registration with Amira before launching.
-          Give this URL to the customer to start registration:{' '}
+          <strong>First time?</strong> Registration required before launching — give Amira this URL:{' '}
           <span className="setup-reg-url">{REG_URL}</span>
-          <br />After registration, Amira will confirm your <strong>Client ID</strong> and <strong>Deployment ID</strong>.
         </div>
       </div>
 
       <div className="section">
         <div className="section-title">Connection</div>
         <div className="field-group">
-          <label htmlFor="init-url-13">Init URL (Amira&apos;s OIDC Endpoint)</label>
+          <label htmlFor="init-url-13">OIDC Endpoint</label>
           <input type="text" id="init-url-13" value={INIT_URL}
             readOnly className="field-locked" autoComplete="off" spellCheck="false" />
         </div>
@@ -240,10 +225,6 @@ export default function Lti13Tab() {
             {touched.clientId && errors.clientId && (
               <div className="field-hint visible">{errors.clientId}</div>
             )}
-            <div className="hint-text">
-              Provided after LTI 1.3 registration. Identifies your LMS to Amira — may follow the{' '}
-              <em>admin.&#123;districtId&#125;.&#123;state&#125;</em> format.
-            </div>
           </div>
           <div className="field-group">
             <label htmlFor="deployment-id-13">Deployment ID</label>
@@ -257,13 +238,10 @@ export default function Lti13Tab() {
             {touched.deploymentId && errors.deploymentId && (
               <div className="field-hint visible">{errors.deploymentId}</div>
             )}
-            <div className="hint-text">
-              Provided after registration. Typically <em>1</em> for a single deployment per Client ID.
-            </div>
           </div>
         </div>
         <div className="field-group">
-          <label htmlFor="issuer-id-13">Issuer ID (Your Platform URL)</label>
+          <label htmlFor="issuer-id-13">Issuer ID</label>
           <input type="text" id="issuer-id-13"
             placeholder="https://script.google.com/macros/s/…/exec"
             autoComplete="off" spellCheck="false"
@@ -275,9 +253,6 @@ export default function Lti13Tab() {
           {touched.issuerId && errors.issuerId && (
             <div className="field-hint visible">{errors.issuerId}</div>
           )}
-          <div className="hint-text">
-            Your Apps Script web app URL. This is the URL you give Amira as your platform.
-          </div>
         </div>
         <div className="two-col">
           <div className="field-group">
@@ -290,9 +265,6 @@ export default function Lti13Tab() {
               value={targetLinkUri}
               onChange={e => setTargetLinkUri(e.target.value)}
             />
-            <div className="hint-text">
-              The resource URL Amira should land on after login. Defaults to the Init URL if left blank.
-            </div>
           </div>
           <div className="field-group">
             <label htmlFor="lti-message-hint-13">
@@ -304,9 +276,6 @@ export default function Lti13Tab() {
               value={ltiMessageHint}
               onChange={e => setLtiMessageHint(e.target.value)}
             />
-            <div className="hint-text">
-              Passed through the OIDC redirect to identify the resource being launched.
-            </div>
           </div>
         </div>
       </div>
@@ -317,26 +286,15 @@ export default function Lti13Tab() {
           <div className="key-dot"></div>
           <span>{keyStatusText}</span>
         </div>
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '14px', flexWrap: 'wrap' }}>
+        <div style={{ marginBottom: '14px' }}>
           <button type="button" className="btn-secondary"
             disabled={genBtnDisabled} onClick={handleGenerateKeys}>
             {genBtnLabel}
           </button>
-          {showSaveBtn && (
-            <button type="button" className="btn-secondary"
-              disabled={saveBtnDisabled} onClick={handleSaveJwks}>
-              {saveBtnLabel}
-            </button>
-          )}
         </div>
         {showJwksRow && (
           <div>
-            <label>
-              JWKS URL{' '}
-              <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>
-                (share with Amira)
-              </span>
-            </label>
+            <label>JWKS URL <span className="optional-tag">share with Amira</span></label>
             <div className="jwks-row">
               <div className="jwks-url">{jwksUrl}</div>
               <button
@@ -346,9 +304,6 @@ export default function Lti13Tab() {
               >
                 {copyJwksLabel}
               </button>
-            </div>
-            <div className="hint-text">
-              Amira uses this URL to fetch your public key and verify the JWT you sign.
             </div>
           </div>
         )}
