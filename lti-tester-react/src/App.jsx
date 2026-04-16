@@ -3,10 +3,17 @@ import Lti10Tab from './components/tabs/Lti10Tab.jsx';
 import Lti12Tab from './components/tabs/Lti12Tab.jsx';
 import Lti13Tab from './components/tabs/Lti13Tab.jsx';
 import SignatureValidator from './components/SignatureValidator.jsx';
-import HealthCheck from './components/HealthCheck.jsx';
 import LmsConfigGenerator from './components/LmsConfigGenerator.jsx';
+import HealthCheck from './components/HealthCheck.jsx';
 
 const isEmbedded = window.self !== window.top;
+
+const TABS = [
+  { id: 'lti10', label: 'LTI 1.0' },
+  { id: 'lti12', label: 'LTI 1.2' },
+  { id: 'lti13', label: 'LTI 1.3' },
+  { id: 'tools', label: '🛠 Tools' },
+];
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('lti10');
@@ -35,36 +42,27 @@ export default function App() {
 
       {/* Tab Bar */}
       <div className="tab-bar">
-        <button
-          className={`tab${activeTab === 'lti10' ? ' active' : ''}`}
-          onClick={() => setActiveTab('lti10')}
-        >
-          LTI 1.0
-        </button>
-        <button
-          className={`tab${activeTab === 'lti12' ? ' active' : ''}`}
-          onClick={() => setActiveTab('lti12')}
-        >
-          LTI 1.2
-        </button>
-        <button
-          className={`tab${activeTab === 'lti13' ? ' active' : ''}`}
-          onClick={() => setActiveTab('lti13')}
-        >
-          LTI 1.3
-        </button>
+        {TABS.map(tab => (
+          <button
+            key={tab.id}
+            className={`tab${activeTab === tab.id ? ' active' : ''}`}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      {/* Active tab */}
+      {/* Tab Content */}
       {activeTab === 'lti10' && <Lti10Tab />}
       {activeTab === 'lti12' && <Lti12Tab />}
       {activeTab === 'lti13' && <Lti13Tab />}
-
-      {/* Signature Validator — always visible below tabs */}
-      <SignatureValidator />
-
-      {/* LMS Config Generator — always visible below Signature Validator */}
-      <LmsConfigGenerator />
+      {activeTab === 'tools' && (
+        <div className="tab-content active">
+          <SignatureValidator defaultOpen />
+          <LmsConfigGenerator defaultOpen />
+        </div>
+      )}
     </>
   );
 }

@@ -117,7 +117,7 @@ function getPlatformLabel(platform) {
   return PLATFORMS.find(p => p.value === platform)?.label ?? platform;
 }
 
-export default function LmsConfigGenerator() {
+export default function LmsConfigGenerator({ defaultOpen = false }) {
   const [consumerKey, setConsumerKey] = useState('');
   const [consumerSecret, setConsumerSecret] = useState('');
   const [platform, setPlatform] = useState('canvas');
@@ -141,7 +141,7 @@ export default function LmsConfigGenerator() {
   }
 
   return (
-    <CollapsibleSection title="LMS Config Generator" tag="LTI 1.0 / 1.1">
+    <CollapsibleSection title="LMS Config Generator" tag="LTI 1.0 / 1.1" defaultOpen={defaultOpen}>
       <div className="field-group">
         <label htmlFor="lcg-key">Consumer Key</label>
         <input

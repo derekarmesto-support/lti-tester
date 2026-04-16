@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { oauthEncode, hmacSha1Base64 } from '../utils/oauth.js';
 import CollapsibleSection from './CollapsibleSection.jsx';
 
-export default function SignatureValidator() {
+export default function SignatureValidator({ defaultOpen = false }) {
   const [sigUrl, setSigUrl]       = useState('');
   const [rawBody, setRawBody]     = useState('');
   const [sigSecret, setSigSecret] = useState('');
@@ -81,6 +81,7 @@ export default function SignatureValidator() {
       title="Signature Validator"
       tag="paste any LTI 1.0 / 1.2 request"
       shaded
+      defaultOpen={defaultOpen}
     >
       <div className="field-group">
         <label htmlFor="sig-url">Launch URL</label>

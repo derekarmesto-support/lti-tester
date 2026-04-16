@@ -34,7 +34,11 @@ export default function HealthCheck() {
   const label = status === 'online' ? 'SSO Online' : status === 'offline' ? 'SSO Offline' : 'Checking…';
 
   return (
-    <button className="health-badge" onClick={runCheck} title="Click to re-check SSO health">
+    <button
+      className="health-badge"
+      onClick={runCheck}
+      data-tooltip="LTI Health Check — click to refresh"
+    >
       <span className={`health-dot ${dotClass}`} />
       {label}
     </button>
