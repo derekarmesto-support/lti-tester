@@ -1,3 +1,4 @@
+// LTI Launch Tester — Amira Learning
 // ── Utilities ──────────────────────────────────────────────────────────────────
 
 function oauthEncode(str) {
