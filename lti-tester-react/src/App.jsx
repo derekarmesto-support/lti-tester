@@ -3,6 +3,8 @@ import Lti10Tab from './components/tabs/Lti10Tab.jsx';
 import Lti12Tab from './components/tabs/Lti12Tab.jsx';
 import Lti13Tab from './components/tabs/Lti13Tab.jsx';
 import SignatureValidator from './components/SignatureValidator.jsx';
+import HealthCheck from './components/HealthCheck.jsx';
+import LmsConfigGenerator from './components/LmsConfigGenerator.jsx';
 
 const isEmbedded = window.self !== window.top;
 
@@ -28,6 +30,7 @@ export default function App() {
           <h1>LTI Launch Tester</h1>
           <p>Amira Learning · SSO Integration Tester</p>
         </div>
+        <HealthCheck />
       </div>
 
       {/* Tab Bar */}
@@ -59,6 +62,9 @@ export default function App() {
 
       {/* Signature Validator — always visible below tabs */}
       <SignatureValidator />
+
+      {/* LMS Config Generator — always visible below Signature Validator */}
+      <LmsConfigGenerator />
     </>
   );
 }
