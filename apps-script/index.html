@@ -3,29 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LTI Launch Tester — Amira Learning</title>
+  <title>LTI Launch Tester</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
-      background: #f0f2f5;
-      min-height: 100vh;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 40px 16px 64px;
+      background: #ffffff;
       color: #1d1d1f;
       -webkit-font-smoothing: antialiased;
-    }
-
-    .card {
-      background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 16px 48px rgba(0,0,0,0.10);
-      width: 100%;
-      max-width: 600px;
-      overflow: hidden;
     }
 
     /* ── Header ── */
@@ -123,6 +109,46 @@
       border-color: transparent;
       box-shadow: 0 2px 8px rgba(0,0,0,0.18);
     }
+
+    /* ── Popup Banner ── */
+    .popup-banner {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      padding: 24px 28px;
+      background: #f9f9fb;
+      border-bottom: 1px solid #e4e8f0;
+      text-align: center;
+    }
+    .popup-banner.visible { display: flex; }
+    .popup-banner-icon { font-size: 2rem; }
+    .popup-banner h2 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #1d1d1f;
+      margin: 0;
+    }
+    .popup-banner p {
+      font-size: 0.8rem;
+      color: #6e6e73;
+      margin: 0;
+    }
+    .popup-banner a {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(135deg, #1d3557 0%, #2a4a73 100%);
+      border-radius: 10px;
+      padding: 12px 24px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      box-shadow: 0 2px 8px rgba(29,53,87,0.25);
+      margin-top: 4px;
+    }
+    .popup-banner a:hover { opacity: 0.9; }
 
     /* ── Sections ── */
     .section {
@@ -358,8 +384,13 @@
       transform: rotate(180deg);
     }
 
-    .collapsible-body { display: none; }
-    .collapsible-body.open { display: block; }
+    .collapsible-body {
+      display: none;
+    }
+
+    .collapsible-body.open {
+      display: block;
+    }
 
     /* ── Buttons ── */
     .launch-section {
@@ -445,7 +476,6 @@
   </style>
 </head>
 <body>
-<div class="card">
 
   <!-- Header -->
   <div class="tool-header">
@@ -456,11 +486,19 @@
     </div>
   </div>
 
+  <!-- Shown automatically when embedded in Google Sites -->
+  <div class="popup-banner" id="popup-banner">
+    <div class="popup-banner-icon">🔗</div>
+    <h2>Open the tester in its own tab</h2>
+    <p>This tool needs to open new tabs to complete a launch.<br>That requires running outside the Google Sites embed.</p>
+    <a id="popup-open-link" href="#" target="_blank">Open LTI Tester ↗</a>
+  </div>
+
   <!-- Tab Bar -->
   <div class="tab-bar">
     <a class="tab active" href="#tab-lti10">LTI 1.0</a>
     <a class="tab" href="#tab-lti12">LTI 1.2</a>
-    <a class="tab" href="#tab-lti13">LTI 1.3</a>
+    <a class="tab" href="#tab-lti13">LTI 1.3 <span class="tab-badge">OIDC</span></a>
   </div>
 
   <!-- ════════════════════════════════════════════
@@ -469,6 +507,7 @@
   <div id="tab-lti10" class="tab-content active">
   <form id="launch-form-10" novalidate>
 
+    <!-- Credentials -->
     <div class="section">
       <div class="section-title">Credentials</div>
       <div class="field-group">
@@ -495,6 +534,7 @@
       </div>
     </div>
 
+    <!-- User Identity -->
     <div class="section shaded">
       <div class="section-title">User Identity</div>
       <div class="two-col">
@@ -528,6 +568,7 @@
       </div>
     </div>
 
+    <!-- Launch -->
     <div class="launch-section">
       <button type="submit" class="btn-primary" id="submit-btn-10">
         &#9658;&nbsp; Launch LTI Tool
@@ -535,6 +576,7 @@
       <div class="message" id="status-msg-10"></div>
     </div>
 
+    <!-- Request Log -->
     <div class="log-section" id="log-section-10">
       <div class="log-header">
         <span class="log-title">Request Log</span>
@@ -552,6 +594,7 @@
   <div id="tab-lti12" class="tab-content">
   <form id="launch-form-12" novalidate>
 
+    <!-- Credentials -->
     <div class="section">
       <div class="section-title">Credentials</div>
       <div class="field-group">
@@ -578,6 +621,7 @@
       </div>
     </div>
 
+    <!-- User Identity -->
     <div class="section shaded">
       <div class="section-title">User Identity</div>
       <div class="two-col">
@@ -639,6 +683,7 @@
       </div>
     </div>
 
+    <!-- Context (Course) — collapsible optional -->
     <div class="section">
       <div class="section-title collapsible" id="context-toggle-12">
         Context &amp; Platform
@@ -686,6 +731,7 @@
       </div>
     </div>
 
+    <!-- Launch -->
     <div class="launch-section">
       <button type="submit" class="btn-primary" id="submit-btn-12">
         &#9658;&nbsp; Launch LTI Tool
@@ -693,6 +739,7 @@
       <div class="message" id="status-msg-12"></div>
     </div>
 
+    <!-- Request Log -->
     <div class="log-section" id="log-section-12">
       <div class="log-header">
         <span class="log-title">Request Log</span>
@@ -710,7 +757,7 @@
   <div id="tab-lti13" class="tab-content">
 
     <!-- Setup info banner -->
-    <div class="setup-info">
+    <div class="setup-info" id="setup-info-13">
       <div class="setup-info-icon">ℹ</div>
       <div>
         <strong>First time?</strong> Complete LTI 1.3 registration with Amira before launching.
@@ -720,6 +767,7 @@
       </div>
     </div>
 
+    <!-- Connection -->
     <div class="section">
       <div class="section-title">Connection</div>
       <div class="field-group">
@@ -748,11 +796,11 @@
       </div>
       <div class="field-group">
         <label for="issuer-id">Issuer ID (Your Platform URL)</label>
-        <input type="text" id="issuer-id" placeholder="https://script.google.com/macros/s/…/exec"
+        <input type="text" id="issuer-id" placeholder="Loading…"
                autocomplete="off" spellcheck="false"
                data-validate="url" data-label="Issuer ID">
         <div class="field-hint" id="hint-issuer-id"></div>
-        <div class="hint-text">Your Apps Script web app URL. This is the URL you give Amira as your platform. Auto-filled when running in Apps Script.</div>
+        <div class="hint-text">Your Apps Script web app URL — auto-filled above. This is the URL you give Amira as your platform.</div>
       </div>
       <div class="two-col">
         <div class="field-group">
@@ -772,6 +820,7 @@
       </div>
     </div>
 
+    <!-- RSA Key Pair -->
     <div class="section shaded">
       <div class="section-title">RSA Key Pair</div>
 
@@ -799,6 +848,7 @@
       </div>
     </div>
 
+    <!-- User Identity -->
     <div class="section">
       <div class="section-title">User Identity</div>
       <div class="two-col">
@@ -831,13 +881,14 @@
         </div>
       </div>
       <div class="field-group">
-        <label for="resource-link-id-13">Resource Link ID <span class="optional-tag">optional</span></label>
+        <label for="resource-link-id-13">Resource Link ID</label>
         <input type="text" id="resource-link-id-13" placeholder="Auto-generated"
                autocomplete="off" spellcheck="false">
-        <div class="hint-text">Leave blank to auto-generate a UUID each launch.</div>
+        <div class="hint-text" style="margin-top:5px">Leave blank to auto-generate a UUID each launch.</div>
       </div>
     </div>
 
+    <!-- Launch -->
     <div class="launch-section">
       <button type="button" class="btn-primary" id="launch-btn-13">
         &#9658;&nbsp; Start LTI 1.3 Launch
@@ -845,6 +896,7 @@
       <div class="message" id="status-msg-13"></div>
     </div>
 
+    <!-- Log -->
     <div class="log-section" id="log-section-13">
       <div class="log-header">
         <span class="log-title">OIDC Flow Log</span>
@@ -855,9 +907,26 @@
 
   </div><!-- /tab-lti13 -->
 
-</div><!-- /.card -->
-
 <script>
+// ── Embedded / popup detection ────────────────────────────────────────────────
+
+(function() {
+  if (window.self !== window.top) {
+    // Running inside an iframe (Google Sites embed)
+    const banner = document.getElementById('popup-banner');
+    const link   = document.getElementById('popup-open-link');
+    banner.classList.add('visible');
+    link.href = window.location.href;
+
+    // Also wire up the link for Apps Script context where location may update later
+    if (typeof google !== 'undefined' && google.script) {
+      google.script.run.withSuccessHandler(url => {
+        link.href = url;
+      }).getScriptUrl();
+    }
+  }
+})();
+
 // ── Utilities ──────────────────────────────────────────────────────────────────
 
 function oauthEncode(str) {
@@ -893,7 +962,7 @@ function base64urlEncodeBytes(bytes) {
   return btoa(b).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
-// ── Pure-JS SHA-1 / HMAC-SHA1 ─────────────────────────────────────────────────
+// ── Pure-JS SHA-1 / HMAC-SHA1 (for LTI 1.0) ──────────────────────────────────
 
 function _sha1(msgBytes) {
   let h0=0x67452301,h1=0xEFCDAB89,h2=0x98BADCFE,h3=0x10325476,h4=0xC3D2E1F0;
@@ -983,6 +1052,7 @@ const VALIDATORS = {
   },
   userid: (val, label, input) => {
     if (!val.trim()) return `${label} is required.`;
+    // Check sibling select for field type
     const form = input.closest('.tab-content, form');
     const sel = form && (form.querySelector('[id^="user-id-field"]'));
     if (sel && sel.value === 'lis_person_contact_email_primary' && !isValidEmail(val)) {
@@ -999,7 +1069,9 @@ function validateInput(input) {
   const val   = input.value;
   const hintId = 'hint-' + input.id;
   const hintEl = document.getElementById(hintId);
+
   const error = VALIDATORS[vtype] ? VALIDATORS[vtype](val, label, input) : null;
+
   if (error) {
     input.classList.add('field-invalid');
     input.classList.remove('field-valid');
@@ -1013,12 +1085,14 @@ function validateInput(input) {
   }
 }
 
+// Attach validation listeners to all validated inputs
 document.querySelectorAll('input[data-validate]').forEach(input => {
   let touched = false;
   input.addEventListener('blur', () => { touched = true; validateInput(input); });
   input.addEventListener('input', () => { if (touched) validateInput(input); });
 });
 
+// Re-validate user ID value when field type changes
 ['user-id-field', 'user-id-field-12', 'user-id-field-13'].forEach(selId => {
   const sel = document.getElementById(selId);
   if (!sel) return;
@@ -1047,12 +1121,15 @@ function clearStatus(id) {
 
 // ── LTI 1.0 Log ───────────────────────────────────────────────────────────────
 
-function buildLogEntry(postUrl, postParams, meta, ts) {
+function showLog10(postUrl, postParams, meta) {
+  const section = document.getElementById('log-section-10');
+  const box     = document.getElementById('log-box-10');
+  const ts = new Date().toLocaleTimeString();
   const paramRows = Object.entries(postParams).map(([k, v]) => {
     const dim = k === 'oauth_signature' || k === 'oauth_consumer_key';
     return `  <span class="log-key">${k}</span><span class="log-sep"> = </span><span class="${dim ? 'log-dim' : 'log-val'}">${v}</span>`;
   }).join('\n');
-  return [
+  const entry = [
     `<span class="log-head">▶ POST  ${ts}</span>`,
     `<span class="log-url">${postUrl}</span>`,
     ``,
@@ -1066,12 +1143,6 @@ function buildLogEntry(postUrl, postParams, meta, ts) {
     `  <span class="log-key">signature</span><span class="log-sep">     = </span><span class="log-val">${meta.signature}</span>`,
     `<span class="log-sep">────────────────────────────────────────────</span>`,
   ].join('\n');
-}
-
-function showLog(sectionId, boxId, postUrl, postParams, meta) {
-  const section = document.getElementById(sectionId);
-  const box     = document.getElementById(boxId);
-  const entry   = buildLogEntry(postUrl, postParams, meta, new Date().toLocaleTimeString());
   box.innerHTML = entry + (box.innerHTML ? '\n\n' + box.innerHTML : '');
   section.classList.add('visible');
 }
@@ -1081,36 +1152,13 @@ document.getElementById('log-clear-10').addEventListener('click', () => {
   document.getElementById('log-section-10').classList.remove('visible');
 });
 
-document.getElementById('log-clear-12').addEventListener('click', () => {
-  document.getElementById('log-box-12').innerHTML = '';
-  document.getElementById('log-section-12').classList.remove('visible');
-});
-
-// ── Shared LTI 1.0/1.2 POST helper ────────────────────────────────────────────
-
-function postLtiForm(launchUrl, postParams, btn, originalLabel, tabName) {
-  const form = document.createElement('form');
-  form.method = 'POST'; form.action = launchUrl; form.target = tabName || '_blank';
-  form.enctype = 'application/x-www-form-urlencoded';
-  form.style.display = 'none';
-  for (const [name, value] of Object.entries(postParams)) {
-    const inp = document.createElement('input');
-    inp.type = 'hidden'; inp.name = name; inp.value = value;
-    form.appendChild(inp);
-  }
-  document.body.appendChild(form);
-  form.submit();
-  document.body.removeChild(form);
-  btn.disabled = false;
-  btn.innerHTML = originalLabel;
-}
-
 // ── LTI 1.0 Launch ────────────────────────────────────────────────────────────
 
 document.getElementById('launch-form-10').addEventListener('submit', (e) => {
   e.preventDefault();
   clearStatus('status-msg-10');
 
+  // Validate all fields first
   const inputs = document.querySelectorAll('#tab-lti10 input[data-validate]');
   let allValid = true;
   inputs.forEach(inp => { if (!validateInput(inp)) allValid = false; });
@@ -1127,24 +1175,23 @@ document.getElementById('launch-form-10').addEventListener('submit', (e) => {
   try { parsedUrl = new URL(launchUrl); }
   catch (_) { return setStatus('status-msg-10', 'error', 'Launch URL is not valid.'); }
 
-  const tabName = 'lti_launch_' + Date.now();
-  let newTab;
-  try { newTab = window.open('about:blank', tabName); } catch(_) {}
-  if (!newTab) {
-    return setStatus('status-msg-10', 'error', 'Pop-ups are blocked. Please allow pop-ups for this page, or open the tester directly in its own tab.');
-  }
-
   const btn = document.getElementById('submit-btn-10');
-  btn.disabled = true; btn.textContent = 'Signing…';
+  btn.disabled = true;
+  btn.textContent = 'Signing…';
 
   try {
-    const timestamp = Math.floor(Date.now() / 1000).toString();
-    const nonce = generateNonce();
+    const timestamp      = Math.floor(Date.now() / 1000).toString();
+    const nonce          = generateNonce();
     const resourceLinkId = generateUUID();
-    const normalizedUrl = parsedUrl.protocol.toLowerCase() + '//' + parsedUrl.host.toLowerCase() + parsedUrl.pathname;
+
+    const normalizedUrl =
+      parsedUrl.protocol.toLowerCase() + '//' +
+      parsedUrl.host.toLowerCase() +
+      parsedUrl.pathname;
 
     const params = {};
     for (const [k, v] of parsedUrl.searchParams.entries()) params[k] = v;
+
     params['lti_message_type']       = 'basic-lti-launch-request';
     params['lti_version']            = 'LTI-1p0';
     params['resource_link_id']       = resourceLinkId;
@@ -1154,23 +1201,39 @@ document.getElementById('launch-form-10').addEventListener('submit', (e) => {
     params['oauth_timestamp']        = timestamp;
     params['oauth_version']          = '1.0';
     params['user_id']                = userIdValue;
-    if (userIdField !== 'user_id') params[userIdField] = userIdValue;
-    params['roles'] = roles;
+    if (userIdField !== 'user_id')   params[userIdField] = userIdValue;
+    params['roles']                  = roles;
 
     const sortedEncoded = Object.entries(params)
       .map(([k, v]) => [oauthEncode(k), oauthEncode(v)])
       .sort((a, b) => a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0);
+
     const paramString = sortedEncoded.map(([k, v]) => `${k}=${v}`).join('&');
     const baseString  = 'POST&' + oauthEncode(normalizedUrl) + '&' + oauthEncode(paramString);
     const signingKey  = oauthEncode(consumerSecret) + '&';
     const signature   = hmacSha1Base64(signingKey, baseString);
-    const postParams  = Object.assign({}, params, { oauth_signature: signature });
 
-    showLog('log-section-10', 'log-box-10', launchUrl, postParams, { signingKey, baseString, signature });
+    const postParams = Object.assign({}, params, { oauth_signature: signature });
+
+    showLog10(launchUrl, postParams, { signingKey, baseString, signature });
     setStatus('status-msg-10', 'success', `Launching to ${parsedUrl.hostname} in a new tab…`);
-    postLtiForm(launchUrl, postParams, btn, '&#9658;&nbsp; Launch LTI Tool', tabName);
+
+    const form = document.createElement('form');
+    form.method = 'POST'; form.action = launchUrl; form.target = '_blank';
+    form.enctype = 'application/x-www-form-urlencoded';
+    form.style.display = 'none';
+    for (const [name, value] of Object.entries(postParams)) {
+      const input = document.createElement('input');
+      input.type = 'hidden'; input.name = name; input.value = value;
+      form.appendChild(input);
+    }
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+    btn.disabled = false;
+    btn.innerHTML = '&#9658;&nbsp; Launch LTI Tool';
+
   } catch (err) {
-    if (newTab) newTab.close();
     setStatus('status-msg-10', 'error', 'Signature error: ' + err.message);
     btn.disabled = false;
     btn.innerHTML = '&#9658;&nbsp; Launch LTI Tool';
@@ -1189,6 +1252,39 @@ document.getElementById('context-toggle-12').addEventListener('click', function 
 document.getElementById('response-format-12').addEventListener('change', function () {
   document.getElementById('outcomes-url-group-12').style.display =
     this.value === 'xml' ? 'block' : 'none';
+});
+
+// ── LTI 1.2 Log ───────────────────────────────────────────────────────────────
+
+function showLog12(postUrl, postParams, meta) {
+  const section = document.getElementById('log-section-12');
+  const box     = document.getElementById('log-box-12');
+  const ts = new Date().toLocaleTimeString();
+  const paramRows = Object.entries(postParams).map(([k, v]) => {
+    const dim = k === 'oauth_signature' || k === 'oauth_consumer_key';
+    return `  <span class="log-key">${k}</span><span class="log-sep"> = </span><span class="${dim ? 'log-dim' : 'log-val'}">${v}</span>`;
+  }).join('\n');
+  const entry = [
+    `<span class="log-head">▶ POST  ${ts}</span>`,
+    `<span class="log-url">${postUrl}</span>`,
+    ``,
+    `<span class="log-key">── Parameters ──────────────────────────────</span>`,
+    paramRows,
+    ``,
+    `<span class="log-key">── OAuth Signature ─────────────────────────</span>`,
+    `  <span class="log-key">method</span><span class="log-sep">        = </span><span class="log-val">HMAC-SHA1</span>`,
+    `  <span class="log-key">signing_key</span><span class="log-sep">   = </span><span class="log-dim">${meta.signingKey}</span>`,
+    `  <span class="log-key">base_string</span><span class="log-sep">   = </span><span class="log-dim">${meta.baseString}</span>`,
+    `  <span class="log-key">signature</span><span class="log-sep">     = </span><span class="log-val">${meta.signature}</span>`,
+    `<span class="log-sep">────────────────────────────────────────────</span>`,
+  ].join('\n');
+  box.innerHTML = entry + (box.innerHTML ? '\n\n' + box.innerHTML : '');
+  section.classList.add('visible');
+}
+
+document.getElementById('log-clear-12').addEventListener('click', () => {
+  document.getElementById('log-box-12').innerHTML = '';
+  document.getElementById('log-section-12').classList.remove('visible');
 });
 
 // ── LTI 1.2 Launch ────────────────────────────────────────────────────────────
@@ -1222,24 +1318,24 @@ document.getElementById('launch-form-12').addEventListener('submit', (e) => {
   try { parsedUrl = new URL(launchUrl); }
   catch (_) { return setStatus('status-msg-12', 'error', 'Launch URL is not valid.'); }
 
-  const tabName = 'lti_launch_' + Date.now();
-  let newTab;
-  try { newTab = window.open('about:blank', tabName); } catch(_) {}
-  if (!newTab) {
-    return setStatus('status-msg-12', 'error', 'Pop-ups are blocked. Please allow pop-ups for this page, or open the tester directly in its own tab.');
-  }
-
   const btn = document.getElementById('submit-btn-12');
-  btn.disabled = true; btn.textContent = 'Signing…';
+  btn.disabled = true;
+  btn.textContent = 'Signing…';
 
   try {
-    const timestamp = Math.floor(Date.now() / 1000).toString();
-    const nonce = generateNonce();
+    const timestamp      = Math.floor(Date.now() / 1000).toString();
+    const nonce          = generateNonce();
     const resourceLinkId = generateUUID();
-    const normalizedUrl = parsedUrl.protocol.toLowerCase() + '//' + parsedUrl.host.toLowerCase() + parsedUrl.pathname;
+
+    const normalizedUrl =
+      parsedUrl.protocol.toLowerCase() + '//' +
+      parsedUrl.host.toLowerCase() +
+      parsedUrl.pathname;
 
     const params = {};
     for (const [k, v] of parsedUrl.searchParams.entries()) params[k] = v;
+
+    // Core LTI params
     params['lti_message_type']       = 'basic-lti-launch-request';
     params['lti_version']            = 'LTI-1p0';
     params['resource_link_id']       = resourceLinkId;
@@ -1249,18 +1345,25 @@ document.getElementById('launch-form-12').addEventListener('submit', (e) => {
     params['oauth_timestamp']        = timestamp;
     params['oauth_version']          = '1.0';
     params['user_id']                = userIdValue;
-    if (userIdField !== 'user_id') params[userIdField] = userIdValue;
-    params['roles'] = roles;
+    if (userIdField !== 'user_id')   params[userIdField] = userIdValue;
+    params['roles']                  = roles;
 
+    // LTI 1.2 person info
     if (givenName)  params['lis_person_name_given']  = givenName;
     if (familyName) params['lis_person_name_family'] = familyName;
     if (givenName && familyName) params['lis_person_name_full'] = givenName + ' ' + familyName;
+
+    // LTI 1.2 context
     if (contextId)    params['context_id']    = contextId;
     if (contextLabel) params['context_label'] = contextLabel;
     if (contextTitle) params['context_title'] = contextTitle;
     if (contextId)    params['context_type']  = 'CourseSection';
+
+    // Tool consumer info
     if (tcGuid)     params['tool_consumer_instance_guid'] = tcGuid;
     if (tcPlatform) params['tool_consumer_info_product_family_code'] = tcPlatform;
+
+    // Outcomes service (XML response format)
     if (responseFormat === 'xml') {
       params['lis_result_sourcedid'] = generateUUID();
       if (outcomesUrl) params['lis_outcome_service_url'] = outcomesUrl;
@@ -1269,17 +1372,33 @@ document.getElementById('launch-form-12').addEventListener('submit', (e) => {
     const sortedEncoded = Object.entries(params)
       .map(([k, v]) => [oauthEncode(k), oauthEncode(v)])
       .sort((a, b) => a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0);
+
     const paramString = sortedEncoded.map(([k, v]) => `${k}=${v}`).join('&');
     const baseString  = 'POST&' + oauthEncode(normalizedUrl) + '&' + oauthEncode(paramString);
     const signingKey  = oauthEncode(consumerSecret) + '&';
     const signature   = hmacSha1Base64(signingKey, baseString);
-    const postParams  = Object.assign({}, params, { oauth_signature: signature });
 
-    showLog('log-section-12', 'log-box-12', launchUrl, postParams, { signingKey, baseString, signature });
+    const postParams = Object.assign({}, params, { oauth_signature: signature });
+
+    showLog12(launchUrl, postParams, { signingKey, baseString, signature });
     setStatus('status-msg-12', 'success', `Launching to ${parsedUrl.hostname} in a new tab…`);
-    postLtiForm(launchUrl, postParams, btn, '&#9658;&nbsp; Launch LTI Tool', tabName);
+
+    const form = document.createElement('form');
+    form.method = 'POST'; form.action = launchUrl; form.target = '_blank';
+    form.enctype = 'application/x-www-form-urlencoded';
+    form.style.display = 'none';
+    for (const [name, value] of Object.entries(postParams)) {
+      const input = document.createElement('input');
+      input.type = 'hidden'; input.name = name; input.value = value;
+      form.appendChild(input);
+    }
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+    btn.disabled = false;
+    btn.innerHTML = '&#9658;&nbsp; Launch LTI Tool';
+
   } catch (err) {
-    if (newTab) newTab.close();
     setStatus('status-msg-12', 'error', 'Signature error: ' + err.message);
     btn.disabled = false;
     btn.innerHTML = '&#9658;&nbsp; Launch LTI Tool';
@@ -1288,9 +1407,10 @@ document.getElementById('launch-form-12').addEventListener('submit', (e) => {
 
 // ── LTI 1.3 — Key Management ──────────────────────────────────────────────────
 
-let lti13KeyPair = null;
+let lti13KeyPair = null; // { privateKeyJwk, publicKeyJwk, publicJwks }
 let scriptUrl    = '';
 
+// Load script URL from Apps Script server-side
 if (typeof google !== 'undefined' && google.script) {
   google.script.run
     .withSuccessHandler(url => {
@@ -1306,55 +1426,76 @@ if (typeof google !== 'undefined' && google.script) {
 function setKeyStatus(type, text) {
   const el  = document.getElementById('key-status');
   const txt = document.getElementById('key-status-text');
-  el.className    = 'key-status ' + type;
+  el.className  = 'key-status ' + type;
   txt.textContent = text;
 }
 
 document.getElementById('btn-generate-keys').addEventListener('click', async () => {
   const btn = document.getElementById('btn-generate-keys');
-  btn.disabled = true; btn.textContent = '⏳ Generating…';
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating…';
   setKeyStatus('working', 'Generating 2048-bit RSA key pair…');
 
   try {
     const keyPair = await crypto.subtle.generateKey(
       { name: 'RSASSA-PKCS1-v1_5', modulusLength: 2048, publicExponent: new Uint8Array([1,0,1]), hash: 'SHA-256' },
-      true, ['sign', 'verify']
+      true,
+      ['sign', 'verify']
     );
+
     const privateKeyJwk = await crypto.subtle.exportKey('jwk', keyPair.privateKey);
     const publicKeyJwk  = await crypto.subtle.exportKey('jwk', keyPair.publicKey);
+
+    // Build JWKS
     const kid = 'lti-key-' + Date.now();
-    privateKeyJwk.kid = kid; publicKeyJwk.kid = kid;
+    privateKeyJwk.kid = kid;
+    publicKeyJwk.kid  = kid;
     const publicJwks = JSON.stringify({ keys: [{ ...publicKeyJwk, use: 'sig', alg: 'RS256' }] });
+
     lti13KeyPair = { privateKeyJwk, publicKeyJwk, publicJwks, kid };
+
+    // Store private key in sessionStorage so auth.html can retrieve it
     sessionStorage.setItem('lti13_private_key', JSON.stringify(privateKeyJwk));
+
     setKeyStatus('ready', 'Key pair ready. Public key staged for server.');
+
+    // Show JWKS URL and Save button
     const jwksUrl = (scriptUrl || document.getElementById('issuer-id').value.trim()) + '?action=jwks';
     document.getElementById('jwks-url-display').textContent = jwksUrl;
     document.getElementById('jwks-row-wrapper').style.display = 'block';
     document.getElementById('btn-save-jwks').style.display = 'inline-flex';
-    btn.disabled = false; btn.textContent = '⚙ Regenerate Key Pair';
+
+    btn.disabled = false;
+    btn.textContent = '⚙ Regenerate Key Pair';
+
   } catch (err) {
     setKeyStatus('none', 'Key generation failed: ' + err.message);
-    btn.disabled = false; btn.textContent = '⚙ Generate New Key Pair';
+    btn.disabled = false;
+    btn.textContent = '⚙ Generate New Key Pair';
   }
 });
 
 document.getElementById('btn-save-jwks').addEventListener('click', () => {
   if (!lti13KeyPair) return;
   const saveBtn = document.getElementById('btn-save-jwks');
-  saveBtn.disabled = true; saveBtn.textContent = '⏳ Saving…';
+  saveBtn.disabled = true;
+  saveBtn.textContent = '⏳ Saving…';
+
   if (typeof google !== 'undefined' && google.script) {
     google.script.run
       .withSuccessHandler(() => {
         setKeyStatus('ready', '✓ Public key saved to server. Amira can now verify your JWTs.');
-        saveBtn.disabled = false; saveBtn.textContent = '✓ Saved';
+        saveBtn.disabled = false;
+        saveBtn.textContent = '✓ Saved';
       })
       .withFailureHandler(err => {
         setKeyStatus('ready', 'Save failed: ' + (err.message || err));
-        saveBtn.disabled = false; saveBtn.textContent = '☁ Save Public Key to Server';
+        saveBtn.disabled = false;
+        saveBtn.textContent = '☁ Save Public Key to Server';
       })
       .saveJwks(lti13KeyPair.publicJwks);
   } else {
+    // Fallback for non-Apps Script context
     setKeyStatus('ready', 'Not running in Apps Script — key save skipped.');
     saveBtn.disabled = false;
   }
@@ -1364,7 +1505,8 @@ document.getElementById('btn-copy-jwks').addEventListener('click', () => {
   const url = document.getElementById('jwks-url-display').textContent;
   navigator.clipboard.writeText(url).then(() => {
     const btn = document.getElementById('btn-copy-jwks');
-    btn.textContent = 'Copied!'; btn.classList.add('copied');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
     setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
   });
 });
@@ -1390,45 +1532,54 @@ document.getElementById('log-clear-13').addEventListener('click', () => {
 document.getElementById('launch-btn-13').addEventListener('click', async () => {
   clearStatus('status-msg-13');
 
+  // Validate fields
   const inputs = document.querySelectorAll('#tab-lti13 input[data-validate]');
   let allValid = true;
   inputs.forEach(inp => { if (!validateInput(inp)) allValid = false; });
   if (!allValid) return;
 
   if (!lti13KeyPair) {
-    return setStatus('status-msg-13', 'error', 'Generate and save an RSA key pair before launching.');
+    return setStatus('status-msg-13', 'error',
+      'Generate and save an RSA key pair before launching.');
   }
 
-  const initUrl        = document.getElementById('init-url').value.trim();
-  const clientId       = document.getElementById('client-id').value.trim();
-  const deploymentId   = document.getElementById('deployment-id').value.trim();
-  const issuerId       = document.getElementById('issuer-id').value.trim();
-  const userIdField    = document.getElementById('user-id-field-13').value;
-  const userIdValue    = document.getElementById('user-id-value-13').value.trim();
-  const roles          = document.getElementById('roles-13').value;
-  const targetLinkUri  = document.getElementById('target-link-uri-13').value.trim() || initUrl;
-  const ltiMessageHint = document.getElementById('lti-message-hint-13').value.trim();
-  const authCallback   = (scriptUrl || issuerId) + '?action=auth';
+  const initUrl       = document.getElementById('init-url').value.trim();
+  const clientId      = document.getElementById('client-id').value.trim();
+  const deploymentId  = document.getElementById('deployment-id').value.trim();
+  const issuerId      = document.getElementById('issuer-id').value.trim();
+  const userIdField   = document.getElementById('user-id-field-13').value;
+  const userIdValue   = document.getElementById('user-id-value-13').value.trim();
+  const roles         = document.getElementById('roles-13').value;
+  const targetLinkUri   = document.getElementById('target-link-uri-13').value.trim() || initUrl;
+  const ltiMessageHint  = document.getElementById('lti-message-hint-13').value.trim();
+  const authCallback    = (scriptUrl || issuerId) + '?action=auth';
 
   let resourceLinkId = document.getElementById('resource-link-id-13').value.trim();
   if (!resourceLinkId) resourceLinkId = generateUUID();
 
+  // Store launch params for auth.html to pick up after OIDC redirect
   const launchParams = {
-    issuerId, clientId, deploymentId,
-    userId: userIdValue, userIdField,
-    role: roles, resourceLinkId,
-    targetLinkUri, keyId: lti13KeyPair.kid,
+    issuerId,
+    clientId,
+    deploymentId,
+    userId:        userIdValue,
+    userIdField,
+    role:          roles,
+    resourceLinkId,
+    targetLinkUri: initUrl,
+    keyId:         lti13KeyPair.kid,
   };
   sessionStorage.setItem('lti13_launch_params', JSON.stringify(launchParams));
   sessionStorage.setItem('lti13_private_key',   JSON.stringify(lti13KeyPair.privateKeyJwk));
 
+  // Build OIDC init params
   const oidcParams = {
-    iss:               issuerId,
-    login_hint:        userIdValue,
-    target_link_uri:   targetLinkUri,
+    iss:              issuerId,
+    login_hint:       userIdValue,
+    target_link_uri:  targetLinkUri,
     lti_deployment_id: deploymentId,
-    client_id:         clientId,
-    redirect_uri:      authCallback,
+    client_id:        clientId,
+    redirect_uri:     authCallback,
   };
   if (ltiMessageHint) oidcParams['lti_message_hint'] = ltiMessageHint;
 
@@ -1450,7 +1601,10 @@ document.getElementById('launch-btn-13').addEventListener('click', async () => {
 
   setTimeout(() => {
     const form = document.createElement('form');
-    form.method = 'POST'; form.action = initUrl; form.style.display = 'none';
+    form.method = 'POST';
+    form.action = initUrl;
+    form.style.display = 'none';
+    // OIDC redirect must happen in same window so sessionStorage is shared
     for (const [name, value] of Object.entries(oidcParams)) {
       const inp = document.createElement('input');
       inp.type = 'hidden'; inp.name = name; inp.value = value;
