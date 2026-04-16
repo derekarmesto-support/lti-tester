@@ -43,7 +43,7 @@ Before launching, complete LTI 1.3 registration with Amira:
 
 1. Give Amira this Dynamic Registration URL to get started:
    ```
-   https://sso.amiralearning.com/dwe-lti-sso/Registration/Init
+   https://sso.app.amiralearning.com/dwe-lti-sso/Registration/Init
    ```
 2. Amira will provide a **Client ID** and **Deployment ID**
 3. Generate a key pair using the **Key Management** section of the tool
