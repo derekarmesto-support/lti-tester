@@ -100,6 +100,7 @@
     <div class="log-section" id="log-section-10">
       <div class="log-header">
         <span class="log-title">Request Log</span>
+        <button type="button" class="btn-copy-log" id="log-copy-10">Copy</button>
         <button type="button" class="log-clear" id="log-clear-10">Clear</button>
       </div>
       <div class="log-box" id="log-box-10"></div>
@@ -258,6 +259,7 @@
     <div class="log-section" id="log-section-12">
       <div class="log-header">
         <span class="log-title">Request Log</span>
+        <button type="button" class="btn-copy-log" id="log-copy-12">Copy</button>
         <button type="button" class="log-clear" id="log-clear-12">Clear</button>
       </div>
       <div class="log-box" id="log-box-12"></div>
@@ -416,6 +418,42 @@
     </div>
 
   </div><!-- /tab-lti13 -->
+
+  <!-- ════════════════════════════════════════════
+       SIGNATURE VALIDATOR (always visible)
+       ════════════════════════════════════════════ -->
+  <div class="section shaded" id="sig-validator-section">
+    <div class="section-title collapsible" id="sig-validator-toggle">
+      Signature Validator
+      <span class="optional-tag">paste any LTI 1.0 / 1.2 request</span>
+      <span class="collapse-chevron">▼</span>
+    </div>
+    <div class="collapsible-body" id="sig-validator-body">
+      <div class="field-group">
+        <label for="sig-url">Launch URL</label>
+        <input type="text" id="sig-url" placeholder="https://sso.app.amiralearning.com/dwe-lti-sso/Launch/lti"
+               autocomplete="off" spellcheck="false">
+        <div class="hint-text">The URL the POST was sent to (required for signature verification).</div>
+      </div>
+      <div class="field-group">
+        <label for="sig-raw-body">Raw POST Body</label>
+        <textarea id="sig-raw-body" rows="5" placeholder="Paste URL-encoded POST params here&#10;e.g. oauth_consumer_key=abc&oauth_signature=xyz%3D&lti_version=LTI-1p0&..."
+                  style="font-family: monospace; font-size: 0.75rem; resize: vertical;"></textarea>
+        <div class="hint-text">Paste the raw URL-encoded POST body from a network capture or LMS log.</div>
+      </div>
+      <div class="field-group">
+        <label for="sig-secret">Consumer Secret</label>
+        <input type="text" id="sig-secret" placeholder="The consumer secret used to sign the request"
+               autocomplete="off" spellcheck="false">
+      </div>
+      <div class="launch-section" style="padding-top: 0;">
+        <button type="button" class="btn-primary" id="sig-validate-btn">
+          &#128273;&nbsp; Validate Signature
+        </button>
+      </div>
+      <div id="sig-result" style="display:none; margin: 0 28px 20px;"></div>
+    </div>
+  </div>
 
 </div><!-- /.card -->
 

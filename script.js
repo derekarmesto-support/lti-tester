@@ -213,8 +213,26 @@ function showLog(sectionId, boxId, postUrl, postParams, meta) {
   const section = document.getElementById(sectionId);
   const box     = document.getElementById(boxId);
   const entry   = buildLogEntry(postUrl, postParams, meta, new Date().toLocaleTimeString());
-  box.innerHTML = entry + (box.innerHTML ? '\n\n' + box.innerHTML : '');
+
+  // Build a wrapper span for this log entry so we can append a response div inside it
+  const entryWrapper = document.createElement('span');
+  entryWrapper.innerHTML = entry;
+
+  // Response placeholder div (updated in place by fetchResponse)
+  const responseDiv = document.createElement('div');
+  responseDiv.className = 'log-response';
+  responseDiv.innerHTML = '\n\n<span class="log-key">── Response ────────────────────────────────</span>\n  <span class="log-dim">⏳ Awaiting response...</span>';
+  entryWrapper.appendChild(responseDiv);
+
+  if (box.firstChild) {
+    const sep = document.createTextNode('\n\n');
+    box.insertBefore(sep, box.firstChild);
+    box.insertBefore(entryWrapper, sep);
+  } else {
+    box.appendChild(entryWrapper);
+  }
   section.classList.add('visible');
+  return responseDiv;
 }
 
 document.getElementById('log-clear-10').addEventListener('click', () => {
@@ -225,6 +243,22 @@ document.getElementById('log-clear-10').addEventListener('click', () => {
 document.getElementById('log-clear-12').addEventListener('click', () => {
   document.getElementById('log-box-12').innerHTML = '';
   document.getElementById('log-section-12').classList.remove('visible');
+});
+
+document.getElementById('log-copy-10').addEventListener('click', function () {
+  const text = document.getElementById('log-box-10').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    this.textContent = 'Copied!';
+    setTimeout(() => { this.textContent = 'Copy'; }, 1500);
+  });
+});
+
+document.getElementById('log-copy-12').addEventListener('click', function () {
+  const text = document.getElementById('log-box-12').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    this.textContent = 'Copied!';
+    setTimeout(() => { this.textContent = 'Copy'; }, 1500);
+  });
 });
 
 // ── Shared LTI 1.0/1.2 POST helper ────────────────────────────────────────────
@@ -244,6 +278,30 @@ function postLtiForm(launchUrl, postParams, btn, originalLabel, tabName) {
   document.body.removeChild(form);
   btn.disabled = false;
   btn.innerHTML = originalLabel;
+}
+
+// ── Fetch response info (in addition to form.submit) ─────────────────────────
+
+function fetchResponse(launchUrl, postParams, responseDiv) {
+  fetch(launchUrl, {
+    method: 'POST',
+    mode: 'cors',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams(postParams).toString()
+  })
+  .then(res => {
+    responseDiv.innerHTML =
+      '\n\n<span class="log-key">── Response ────────────────────────────────</span>\n' +
+      `  <span class="log-key">status</span><span class="log-sep"> = </span><span class="log-val">${res.status} ${res.statusText}</span>\n` +
+      `  <span class="log-key">final_url</span><span class="log-sep"> = </span><span class="log-url">${res.url || launchUrl}</span>\n` +
+      `<span class="log-sep">────────────────────────────────────────────</span>`;
+  })
+  .catch(() => {
+    responseDiv.innerHTML =
+      '\n\n<span class="log-key">── Response ────────────────────────────────</span>\n' +
+      `  <span class="log-dim">⚠ Response blocked by browser CORS policy — check the opened tab</span>\n` +
+      `<span class="log-sep">────────────────────────────────────────────</span>`;
+  });
 }
 
 // ── LTI 1.0 Launch ────────────────────────────────────────────────────────────
@@ -307,9 +365,10 @@ document.getElementById('launch-form-10').addEventListener('submit', (e) => {
     const signature   = hmacSha1Base64(signingKey, baseString);
     const postParams  = Object.assign({}, params, { oauth_signature: signature });
 
-    showLog('log-section-10', 'log-box-10', launchUrl, postParams, { signingKey, baseString, signature });
+    const responseDiv10 = showLog('log-section-10', 'log-box-10', launchUrl, postParams, { signingKey, baseString, signature });
     setStatus('status-msg-10', 'success', `Launching to ${parsedUrl.hostname} in a new tab…`);
     postLtiForm(launchUrl, postParams, btn, '&#9658;&nbsp; Launch LTI Tool', tabName);
+    fetchResponse(launchUrl, postParams, responseDiv10);
   } catch (err) {
     if (newTab) newTab.close();
     setStatus('status-msg-10', 'error', 'Signature error: ' + err.message);
@@ -416,9 +475,10 @@ document.getElementById('launch-form-12').addEventListener('submit', (e) => {
     const signature   = hmacSha1Base64(signingKey, baseString);
     const postParams  = Object.assign({}, params, { oauth_signature: signature });
 
-    showLog('log-section-12', 'log-box-12', launchUrl, postParams, { signingKey, baseString, signature });
+    const responseDiv12 = showLog('log-section-12', 'log-box-12', launchUrl, postParams, { signingKey, baseString, signature });
     setStatus('status-msg-12', 'success', `Launching to ${parsedUrl.hostname} in a new tab…`);
     postLtiForm(launchUrl, postParams, btn, '&#9658;&nbsp; Launch LTI Tool', tabName);
+    fetchResponse(launchUrl, postParams, responseDiv12);
   } catch (err) {
     if (newTab) newTab.close();
     setStatus('status-msg-12', 'error', 'Signature error: ' + err.message);
@@ -600,4 +660,98 @@ document.getElementById('launch-btn-13').addEventListener('click', async () => {
     document.body.appendChild(form);
     form.submit();
   }, 600);
+});
+
+// ── Signature Validator ────────────────────────────────────────────────────────
+
+document.getElementById('sig-validator-toggle').addEventListener('click', function () {
+  this.classList.toggle('open');
+  document.getElementById('sig-validator-body').classList.toggle('open');
+});
+
+document.getElementById('sig-validate-btn').addEventListener('click', function () {
+  const rawBody  = document.getElementById('sig-raw-body').value.trim();
+  const secret   = document.getElementById('sig-secret').value.trim();
+  const launchUrl = document.getElementById('sig-url').value.trim();
+  const resultEl = document.getElementById('sig-result');
+
+  resultEl.style.display = 'none';
+  resultEl.innerHTML = '';
+
+  if (!rawBody) {
+    resultEl.innerHTML = '<div class="status-bar error">Please paste a raw POST body to validate.</div>';
+    resultEl.style.display = 'block';
+    return;
+  }
+  if (!launchUrl) {
+    resultEl.innerHTML = '<div class="status-bar error">Please enter the Launch URL the request was sent to.</div>';
+    resultEl.style.display = 'block';
+    return;
+  }
+  if (!secret) {
+    resultEl.innerHTML = '<div class="status-bar error">Please enter the consumer secret.</div>';
+    resultEl.style.display = 'block';
+    return;
+  }
+
+  // Parse params
+  let parsedUrl;
+  try { parsedUrl = new URL(launchUrl); }
+  catch (_) {
+    resultEl.innerHTML = '<div class="status-bar error">Launch URL is not valid.</div>';
+    resultEl.style.display = 'block';
+    return;
+  }
+
+  const usp = new URLSearchParams(rawBody);
+  const allParams = {};
+  for (const [k, v] of usp.entries()) allParams[k] = v;
+
+  const receivedSig = allParams['oauth_signature'];
+  if (!receivedSig) {
+    resultEl.innerHTML = '<div class="status-bar error">No <code>oauth_signature</code> found in the POST body.</div>';
+    resultEl.style.display = 'block';
+    return;
+  }
+
+  // Build signing inputs — exclude oauth_signature
+  const sigParams = Object.assign({}, allParams);
+  delete sigParams['oauth_signature'];
+
+  // Also include any query params from the URL
+  for (const [k, v] of parsedUrl.searchParams.entries()) {
+    if (!(k in sigParams)) sigParams[k] = v;
+  }
+
+  const normalizedUrl = parsedUrl.protocol.toLowerCase() + '//' + parsedUrl.host.toLowerCase() + parsedUrl.pathname;
+
+  const sortedEncoded = Object.entries(sigParams)
+    .map(([k, v]) => [oauthEncode(k), oauthEncode(v)])
+    .sort((a, b) => a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0);
+  const paramString = sortedEncoded.map(([k, v]) => `${k}=${v}`).join('&');
+  const baseString  = 'POST&' + oauthEncode(normalizedUrl) + '&' + oauthEncode(paramString);
+  const signingKey  = oauthEncode(secret) + '&';
+  const computedSig = hmacSha1Base64(signingKey, baseString);
+
+  const match = computedSig === receivedSig;
+
+  const escapedBase   = baseString.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const escapedKey    = signingKey.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const escapedComp   = computedSig.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const escapedRecv   = receivedSig.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+
+  if (match) {
+    resultEl.innerHTML =
+      `<div class="status-bar success">` +
+        `<strong>&#10003; Signature is valid</strong>` +
+        `<pre>signing_key  = ${escapedKey}\nbase_string  = ${escapedBase}</pre>` +
+      `</div>`;
+  } else {
+    resultEl.innerHTML =
+      `<div class="status-bar error">` +
+        `<strong>&#10007; Signature mismatch</strong>` +
+        `<pre>expected     = ${escapedComp}\nreceived     = ${escapedRecv}\n\nsigning_key  = ${escapedKey}\nbase_string  = ${escapedBase}</pre>` +
+      `</div>`;
+  }
+  resultEl.style.display = 'block';
 });

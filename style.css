@@ -421,6 +421,14 @@
     }
     .log-clear:hover { color: #1d3557; }
 
+    .btn-copy-log {
+      background: none; border: none; color: #8e8e93;
+      font-size: 0.75rem; font-family: inherit; cursor: pointer;
+      padding: 0; width: auto; margin-top: 0;
+      text-decoration: underline; font-weight: 400;
+    }
+    .btn-copy-log:hover { color: #1d3557; }
+
     .log-box {
       background: #0f1923; color: #e5e5ea;
       padding: 16px 20px;
@@ -436,3 +444,32 @@
     .log-box .log-sep  { color: #3a4a5a; }
     .log-box .log-head { color: #ff6b6b; font-weight: 700; display: block; }
     .log-box .log-dim  { color: #3a4a5a; }
+
+    /* ── Status Bar (Signature Validator results) ── */
+    .status-bar {
+      padding: 12px 16px;
+      border-radius: 9px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    .status-bar.success {
+      background: #f0faf4; border: 1px solid #b6e8c8; color: #1a7f4b;
+    }
+    .status-bar.error {
+      background: #fff2f2; border: 1px solid #ffd0d0; color: #c0392b;
+    }
+    .status-bar.info {
+      background: #f2f4f8; border: 1px solid #d0d8e8; color: #3c4a60;
+    }
+    .status-bar pre {
+      margin-top: 8px;
+      font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+      font-size: 0.72rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+      background: rgba(0,0,0,0.05);
+      padding: 8px 10px;
+      border-radius: 6px;
+      color: inherit;
+    }
