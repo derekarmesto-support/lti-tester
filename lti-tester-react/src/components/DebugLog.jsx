@@ -27,14 +27,16 @@ export default function DebugLog({ entries, onClear, title, copyId }) {
     <div className="log-section visible">
       <div className="log-header">
         <span className="log-title">{title || 'Request Log'}</span>
-        {copyId !== false && (
-          <button type="button" className="btn-copy-log" onClick={handleCopy}>
-            {copyLabel}
+        <div className="log-actions">
+          {copyId !== false && (
+            <button type="button" className="btn-copy-log" onClick={handleCopy}>
+              {copyLabel}
+            </button>
+          )}
+          <button type="button" className="log-clear" onClick={onClear}>
+            Clear
           </button>
-        )}
-        <button type="button" className="log-clear" onClick={onClear}>
-          Clear
-        </button>
+        </div>
       </div>
       <div
         className="log-box"
