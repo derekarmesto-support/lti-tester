@@ -288,18 +288,44 @@ function LmsConfigTool() {
 }
 
 // ── Tools Tab ───────────────────────────────────────────────────────────────
+const TOOL_VIEWS = [
+  {
+    id: 'validator',
+    label: '🔏 Signature Validator',
+    tag: 'Debug a failing launch',
+  },
+  {
+    id: 'config',
+    label: '⚙️ LMS Config Generator',
+    tag: 'Set up a new integration',
+  },
+];
+
 export default function ToolsTab() {
+  const [view, setView] = useState('validator');
+  const active = TOOL_VIEWS.find(v => v.id === view);
+
   return (
     <div className="tab-content active">
-      <div className="tools-intro">
-        <div className="tools-intro-icon">🛠</div>
-        <div>
-          <strong>Diagnostic Tools</strong>
-          <p>Use these when troubleshooting an LTI integration — validate a failing signature or generate a config for a new LMS setup.</p>
-        </div>
+      {/* Sub-navigation */}
+      <div className="tools-subnav">
+        {TOOL_VIEWS.map(v => (
+          <button
+            key={v.id}
+            className={`tools-subnav-btn${view === v.id ? ' active' : ''}`}
+            onClick={() => setView(v.id)}
+          >
+            <span className="tools-subnav-label">{v.label}</span>
+            <span className="tools-subnav-tag">{v.tag}</span>
+          </button>
+        ))}
       </div>
-      <SignatureValidatorTool />
-      <LmsConfigTool />
+
+      {/* Active tool */}
+      <div className="tool-view" key={view}>
+        {view === 'validator' && <SignatureValidatorTool />}
+        {view === 'config'    && <LmsConfigTool />}
+      </div>
     </div>
   );
 }
