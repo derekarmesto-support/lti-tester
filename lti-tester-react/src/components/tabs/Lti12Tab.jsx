@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { buildLti12Params } from '../../utils/lti.js';
 import DebugLog from '../DebugLog.jsx';
 import CollapsibleSection from '../CollapsibleSection.jsx';
+import SegmentedControl from '../SegmentedControl.jsx';
 
 const LAUNCH_URL = 'https://sso.app.amiralearning.com/dwe-lti-sso/Launch/lti';
 
@@ -215,21 +216,21 @@ export default function Lti12Tab() {
           <div className="section-title">User Identity</div>
           <div className="two-col">
             <div className="field-group">
-              <label htmlFor="user-id-field-12">ID Field</label>
-              <div className="select-wrapper">
-                <select id="user-id-field-12" value={userIdField}
-                  onChange={e => {
-                    setUserIdField(e.target.value);
-                    if (touched.userIdValue) {
-                      setErrors(validate({ ...getFields(), userIdField: e.target.value }));
-                    }
-                  }}
-                >
-                  <option value="user_id">School Assigned ID</option>
-                  <option value="lis_person_contact_email_primary">E-mail Address</option>
-                  <option value="ext_user_username">3rd Party ID</option>
-                </select>
-              </div>
+              <label>ID Field</label>
+              <SegmentedControl
+                options={[
+                  { value: 'user_id',                          label: 'School ID' },
+                  { value: 'lis_person_contact_email_primary', label: 'Email' },
+                  { value: 'ext_user_username',                label: '3rd Party' },
+                ]}
+                value={userIdField}
+                onChange={val => {
+                  setUserIdField(val);
+                  if (touched.userIdValue) {
+                    setErrors(validate({ ...getFields(), userIdField: val }));
+                  }
+                }}
+              />
             </div>
             <div className="field-group">
               <label htmlFor="user-id-value-12">ID Value</label>
@@ -264,14 +265,16 @@ export default function Lti12Tab() {
             </div>
           </div>
           <div className="field-group">
-            <label htmlFor="roles-12">Role</label>
-            <div className="select-wrapper">
-              <select id="roles-12" value={roles} onChange={e => setRoles(e.target.value)}>
-                <option value="Learner">Student (Learner)</option>
-                <option value="Instructor">Teacher (Instructor)</option>
-                <option value="Administrator">Administrator</option>
-              </select>
-            </div>
+            <label>Role</label>
+            <SegmentedControl
+              options={[
+                { value: 'Learner',       label: 'Student' },
+                { value: 'Instructor',    label: 'Teacher' },
+                { value: 'Administrator', label: 'Admin' },
+              ]}
+              value={roles}
+              onChange={setRoles}
+            />
           </div>
           <div className="two-col">
             <div className="field-group">
