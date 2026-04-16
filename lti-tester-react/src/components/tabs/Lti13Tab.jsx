@@ -3,6 +3,7 @@ import { generateUUID } from '../../utils/oauth.js';
 import { usePersistedState } from '../../utils/usePersistedState.js';
 import DebugLog from '../DebugLog.jsx';
 import SegmentedControl from '../SegmentedControl.jsx';
+import CollapsibleSection from '../CollapsibleSection.jsx';
 
 const INIT_URL = 'https://sso.app.amiralearning.com/dwe-lti-sso/Launch/lti/1.3/init';
 const REG_URL  = 'https://sso.app.amiralearning.com/dwe-lti-sso/Registration/Init';
@@ -205,8 +206,9 @@ export default function Lti13Tab() {
         </div>
       </div>
 
+      {/* ── Connection & Identity ── */}
       <div className="section">
-        <div className="section-title">Connection</div>
+        <div className="section-title">Configuration</div>
         <div className="field-group">
           <label htmlFor="init-url-13">OIDC Endpoint</label>
           <input type="text" id="init-url-13" value={INIT_URL}
@@ -256,63 +258,6 @@ export default function Lti13Tab() {
         </div>
         <div className="two-col">
           <div className="field-group">
-            <label htmlFor="target-link-uri-13">
-              Target Link URI <span className="optional-tag">optional</span>
-            </label>
-            <input type="text" id="target-link-uri-13"
-              placeholder="e.g. https://amiralearning.com"
-              autoComplete="off" spellCheck="false"
-              value={targetLinkUri}
-              onChange={e => setTargetLinkUri(e.target.value)}
-            />
-          </div>
-          <div className="field-group">
-            <label htmlFor="lti-message-hint-13">
-              LTI Message Hint <span className="optional-tag">optional</span>
-            </label>
-            <input type="text" id="lti-message-hint-13"
-              placeholder="e.g. 123456"
-              autoComplete="off" spellCheck="false"
-              value={ltiMessageHint}
-              onChange={e => setLtiMessageHint(e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="section shaded">
-        <div className="section-title">RSA Key Pair</div>
-        <div className={`key-status ${keyStatus}`}>
-          <div className="key-dot"></div>
-          <span>{keyStatusText}</span>
-        </div>
-        <div style={{ marginBottom: '14px' }}>
-          <button type="button" className="btn-secondary"
-            disabled={genBtnDisabled} onClick={handleGenerateKeys}>
-            {genBtnLabel}
-          </button>
-        </div>
-        {showJwksRow && (
-          <div>
-            <label>JWKS URL <span className="optional-tag">share with Amira</span></label>
-            <div className="jwks-row">
-              <div className="jwks-url">{jwksUrl}</div>
-              <button
-                type="button"
-                className={`btn-copy${copyJwksLabel === 'Copied!' ? ' copied' : ''}`}
-                onClick={handleCopyJwks}
-              >
-                {copyJwksLabel}
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="section">
-        <div className="section-title">User Identity</div>
-        <div className="two-col">
-          <div className="field-group">
             <label>ID Field</label>
             <SegmentedControl
               options={[
@@ -355,10 +300,61 @@ export default function Lti13Tab() {
             onChange={setRoles}
           />
         </div>
+      </div>
+
+      {/* ── RSA Key Pair (collapsible, open by default) ── */}
+      <CollapsibleSection title="RSA Key Pair" tag="required" shaded defaultOpen>
+        <div className={`key-status ${keyStatus}`}>
+          <div className="key-dot"></div>
+          <span>{keyStatusText}</span>
+        </div>
+        <div style={{ marginBottom: '14px' }}>
+          <button type="button" className="btn-secondary"
+            disabled={genBtnDisabled} onClick={handleGenerateKeys}>
+            {genBtnLabel}
+          </button>
+        </div>
+        {showJwksRow && (
+          <div>
+            <label>JWKS URL <span className="optional-tag">share with Amira</span></label>
+            <div className="jwks-row">
+              <div className="jwks-url">{jwksUrl}</div>
+              <button
+                type="button"
+                className={`btn-copy${copyJwksLabel === 'Copied!' ? ' copied' : ''}`}
+                onClick={handleCopyJwks}
+              >
+                {copyJwksLabel}
+              </button>
+            </div>
+          </div>
+        )}
+      </CollapsibleSection>
+
+      {/* ── Advanced / optional params (collapsed by default) ── */}
+      <CollapsibleSection title="Advanced" tag="optional">
+        <div className="two-col">
+          <div className="field-group">
+            <label htmlFor="target-link-uri-13">Target Link URI</label>
+            <input type="text" id="target-link-uri-13"
+              placeholder="Defaults to OIDC Endpoint"
+              autoComplete="off" spellCheck="false"
+              value={targetLinkUri}
+              onChange={e => setTargetLinkUri(e.target.value)}
+            />
+          </div>
+          <div className="field-group">
+            <label htmlFor="lti-message-hint-13">LTI Message Hint</label>
+            <input type="text" id="lti-message-hint-13"
+              placeholder="e.g. 123456"
+              autoComplete="off" spellCheck="false"
+              value={ltiMessageHint}
+              onChange={e => setLtiMessageHint(e.target.value)}
+            />
+          </div>
+        </div>
         <div className="field-group">
-          <label htmlFor="resource-link-id-13">
-            Resource Link ID <span className="optional-tag">optional</span>
-          </label>
+          <label htmlFor="resource-link-id-13">Resource Link ID</label>
           <input type="text" id="resource-link-id-13" placeholder="Auto-generated"
             autoComplete="off" spellCheck="false"
             value={resourceLinkId}
@@ -366,7 +362,7 @@ export default function Lti13Tab() {
           />
           <div className="hint-text">Leave blank to auto-generate a UUID each launch.</div>
         </div>
-      </div>
+      </CollapsibleSection>
 
       <div className="launch-section">
         <button type="button" className="btn-primary" disabled={launching} onClick={handleLaunch}>
