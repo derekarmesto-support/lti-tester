@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { buildLti10Params } from '../../utils/lti.js';
+import { usePersistedState } from '../../utils/usePersistedState.js';
 import DebugLog from '../DebugLog.jsx';
 import SegmentedControl from '../SegmentedControl.jsx';
 
@@ -55,8 +56,8 @@ function buildResponseCorsHtml() {
 }
 
 export default function Lti10Tab() {
-  const [consumerKey, setConsumerKey]   = useState('');
-  const [consumerSecret, setConsumerSecret] = useState('');
+  const [consumerKey, setConsumerKey]   = usePersistedState('lti10_consumer_key', '');
+  const [consumerSecret, setConsumerSecret] = usePersistedState('lti10_consumer_secret', '');
   const [userIdField, setUserIdField]   = useState('user_id');
   const [userIdValue, setUserIdValue]   = useState('');
   const [roles, setRoles]               = useState('Learner');

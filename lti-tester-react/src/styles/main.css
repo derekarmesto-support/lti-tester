@@ -49,6 +49,102 @@
   --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
 }
 
+/* ── Dark Mode ──────────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --bg:             #0d1117;
+  --surface:        #161b22;
+  --surface-muted:  #1c2128;
+  --surface-hover:  #21262d;
+
+  --border:         #30363d;
+  --border-focus:   #58a6ff;
+
+  --text:           #e6edf3;
+  --text-muted:     #8b949e;
+  --text-subtle:    #484f58;
+
+  --success:        #3fb950;
+  --success-bg:     #0d2119;
+  --success-border: #1a4731;
+
+  --error:          #f85149;
+  --error-bg:       #2d0f0e;
+  --error-border:   #6e2e2d;
+
+  --warn-bg:        #2d2009;
+  --warn-border:    #5a3e0f;
+  --warn-text:      #d29922;
+
+  --accent-light:   #0d1f38;
+  --accent-mid:     #1f3a5f;
+
+  --shadow-card:
+    0 0 0 1px rgba(255,255,255,0.04),
+    0 2px 4px rgba(0,0,0,0.3),
+    0 12px 40px rgba(0,0,0,0.4),
+    0 32px 72px rgba(0,0,0,0.3);
+}
+
+[data-theme="dark"] body {
+  background: #0d1117;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(88,166,255,0.05) 0%, transparent 45%),
+    radial-gradient(circle at 80% 80%, rgba(56,189,248,0.04) 0%, transparent 45%),
+    radial-gradient(#1c2128 1px, transparent 1px);
+  background-size: auto, auto, 22px 22px;
+}
+
+[data-theme="dark"] #root {
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] input[type="password"],
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  color-scheme: dark;
+}
+
+[data-theme="dark"] .tool-header {
+  background:
+    radial-gradient(ellipse 65% 100% at 92% -15%, rgba(56,189,248,0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 45% 75% at -8%  110%, rgba(99,102,241,0.12) 0%, transparent 55%),
+    linear-gradient(145deg, #060d1f 0%, #0d1f4a 38%, #0f2f8a 72%, #1a3fd8 100%);
+}
+
+[data-theme="dark"] .tab-bar {
+  background: var(--surface-muted);
+  border-bottom-color: var(--border);
+}
+
+[data-theme="dark"] .tab:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+[data-theme="dark"] .tab.active {
+  background: var(--surface);
+  color: #58a6ff;
+  border-color: var(--accent-mid);
+  box-shadow: none;
+}
+
+[data-theme="dark"] .btn-copy-log:hover,
+[data-theme="dark"] .log-clear:hover { color: rgba(255,255,255,0.8); }
+
+[data-theme="dark"] .seg-option:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+[data-theme="dark"] .seg-option.active {
+  background: var(--surface-hover);
+  color: #58a6ff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+
+[data-theme="dark"] .config-note {
+  color: #79b8ff;
+}
+
 /* ── Keyframe Animations ─────────────────────────────────────────────────── */
 @keyframes shimmer {
   0%   { left: -100%; }
@@ -83,7 +179,7 @@ body {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 44px 16px 88px;
+  padding: 32px 24px 80px;
   color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -91,7 +187,7 @@ body {
 
 #root {
   width: 100%;
-  max-width: 760px;
+  max-width: 880px;
   background: var(--surface);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-card);
@@ -770,6 +866,22 @@ input.field-locked:focus {
   font-weight: 700;
   box-shadow: 0 1px 4px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06);
 }
+
+/* ── Dark Mode Toggle ────────────────────────────────────────────────────── */
+.dark-toggle {
+  display: flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px;
+  border-radius: var(--radius-pill);
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.15);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.14s, border-color 0.14s;
+  position: relative; z-index: 1;
+  flex-shrink: 0;
+  backdrop-filter: blur(4px);
+}
+.dark-toggle:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.26); }
 
 /* ── Embedded Banner ─────────────────────────────────────────────────────── */
 .embedded-banner {

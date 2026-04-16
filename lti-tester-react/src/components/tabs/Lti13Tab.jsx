@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { generateUUID } from '../../utils/oauth.js';
+import { usePersistedState } from '../../utils/usePersistedState.js';
 import DebugLog from '../DebugLog.jsx';
 import SegmentedControl from '../SegmentedControl.jsx';
 
@@ -18,9 +19,9 @@ function isValidEmail(str) {
 }
 
 export default function Lti13Tab() {
-  const [clientId, setClientId]             = useState('');
-  const [deploymentId, setDeploymentId]     = useState('');
-  const [issuerId, setIssuerId]             = useState('');
+  const [clientId, setClientId]             = usePersistedState('lti13_client_id', '');
+  const [deploymentId, setDeploymentId]     = usePersistedState('lti13_deployment_id', '');
+  const [issuerId, setIssuerId]             = usePersistedState('lti13_issuer_id', '');
   const [userIdField, setUserIdField]       = useState('user_id');
   const [userIdValue, setUserIdValue]       = useState('');
   const [roles, setRoles]                   = useState('Learner');

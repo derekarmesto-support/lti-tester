@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { buildLti12Params } from '../../utils/lti.js';
+import { usePersistedState } from '../../utils/usePersistedState.js';
 import DebugLog from '../DebugLog.jsx';
 import CollapsibleSection from '../CollapsibleSection.jsx';
 import SegmentedControl from '../SegmentedControl.jsx';
@@ -47,8 +48,8 @@ function buildResponseCorsHtml() {
 }
 
 export default function Lti12Tab() {
-  const [consumerKey, setConsumerKey]       = useState('');
-  const [consumerSecret, setConsumerSecret] = useState('');
+  const [consumerKey, setConsumerKey]       = usePersistedState('lti12_consumer_key', '');
+  const [consumerSecret, setConsumerSecret] = usePersistedState('lti12_consumer_secret', '');
   const [userIdField, setUserIdField]       = useState('user_id');
   const [userIdValue, setUserIdValue]       = useState('');
   const [roles, setRoles]                   = useState('Learner');
@@ -298,7 +299,7 @@ export default function Lti12Tab() {
           </div>
         </div>
 
-        <CollapsibleSection title="Context &amp; Platform" tag="optional">
+        <CollapsibleSection title="Context &amp; Platform" tag="optional" shaded>
           <div className="two-col">
             <div className="field-group">
               <label htmlFor="context-id-12">Context ID</label>

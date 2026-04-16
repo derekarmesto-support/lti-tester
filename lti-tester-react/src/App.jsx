@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Lti10Tab from './components/tabs/Lti10Tab.jsx';
 import Lti12Tab from './components/tabs/Lti12Tab.jsx';
 import Lti13Tab from './components/tabs/Lti13Tab.jsx';
@@ -17,6 +17,12 @@ const TABS = [
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('lti10');
+  const [dark, setDark] = useState(() => localStorage.getItem('theme') === 'dark');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    localStorage.setItem('theme', dark ? 'dark' : 'light');
+  }, [dark]);
 
   return (
     <>
@@ -37,6 +43,13 @@ export default function App() {
           <h1>LTI Launch Tester</h1>
           <p>Amira Learning · SSO Integration Tester</p>
         </div>
+        <button
+          className="dark-toggle"
+          onClick={() => setDark(d => !d)}
+          title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {dark ? '☀️' : '🌙'}
+        </button>
         <HealthCheck />
       </div>
 
