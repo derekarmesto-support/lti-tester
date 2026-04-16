@@ -8,3 +8,6 @@ lti-tester-react/dist/
 # Editor
 .vscode/
 .idea/
+
+# Local scratch files
+mockup.html
