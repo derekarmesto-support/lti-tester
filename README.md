@@ -34,9 +34,7 @@ Same as LTI 1.0 with additional optional fields for person info, course context,
 
 ---
 
-## LTI 1.3 ⚠️ Work in Progress
-
-LTI 1.3 uses OIDC / JWT instead of OAuth. Full validation with Amira is still in progress.
+## LTI 1.3
 
 ### First-time setup
 Before launching, complete LTI 1.3 registration with Amira:

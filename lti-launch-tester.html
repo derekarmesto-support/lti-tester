@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LTI Launch Tester — Amira Learning</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 16px 64px;
+      color: #1d1d1f;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 16px 48px rgba(0,0,0,0.10);
+      width: 100%;
+      max-width: 600px;
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    .tool-header {
+      background: linear-gradient(135deg, #1d3557 0%, #2a4a73 100%);
+      padding: 24px 28px 22px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .tool-icon {
+      width: 44px; height: 44px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; flex-shrink: 0;
+    }
+
+    .tool-header-text h1 { font-size: 1.1rem; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
+    .tool-header-text p  { font-size: 0.78rem; color: rgba(255,255,255,0.55); margin-top: 2px; }
+
+    /* ── Tab Bar ── */
+    .tab-bar {
+      display: flex;
+      background: linear-gradient(135deg, #1d3557 0%, #2a4a73 100%);
+      padding: 0 28px 16px;
+      gap: 6px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px 12px;
+      font-size: 0.83rem;
+      font-weight: 600;
+      font-family: inherit;
+      color: rgba(255,255,255,0.55);
+      background: rgba(255,255,255,0.08);
+      border: 1.5px solid rgba(255,255,255,0.12);
+      border-radius: 9px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      text-decoration: none;
+    }
+
+    .tab:hover {
+      background: rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.85);
+    }
+
+    .tab.active {
+      background: #ffffff;
+      color: #1d3557;
+      border-color: transparent;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    }
+
+    .tab-badge {
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      background: rgba(29,53,87,0.12);
+      color: inherit;
+      border-radius: 4px;
+      padding: 2px 5px;
+    }
+
+    .tab.active .tab-badge {
+      background: #e8f0fc;
+      color: #1d3557;
+    }
+
+    /* ── Tab Content ── */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* CSS :target fallback — works even when JS click events are blocked (e.g. Google Sites iframe first-click) */
+    .tab-content:target { display: block; }
+    body:has(#tab-lti12:target) #tab-lti10,
+    body:has(#tab-lti13:target) #tab-lti10 { display: none; }
+
+    /* Tab highlight via :target — overrides .active class when JS didn't fire */
+    body:has(#tab-lti12:target) a[href="#tab-lti10"],
+    body:has(#tab-lti13:target) a[href="#tab-lti10"] {
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.55);
+      border-color: rgba(255,255,255,0.12);
+      box-shadow: none;
+    }
+    body:has(#tab-lti12:target) a[href="#tab-lti12"],
+    body:has(#tab-lti13:target) a[href="#tab-lti13"] {
+      background: #ffffff;
+      color: #1d3557;
+      border-color: transparent;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    }
+
+    /* ── Sections ── */
+    .section {
+      padding: 22px 28px;
+      border-bottom: 1px solid #f0f0f2;
+    }
+
+    .section:last-child { border-bottom: none; }
+    .section.shaded { background: #f9f9fb; }
+
+    .section-title {
+      font-size: 0.68rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: #1d3557; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 7px;
+    }
+
+    .section-title::after {
+      content: ""; flex: 1; height: 1px; background: #e4e8f0;
+    }
+
+    /* ── Fields ── */
+    .field-group { margin-bottom: 14px; }
+    .field-group:last-child { margin-bottom: 0; }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.72rem; font-weight: 600;
+      color: #6e6e73; text-transform: uppercase; letter-spacing: 0.07em;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid #e0e0e5;
+      border-radius: 9px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      color: #1d1d1f;
+      background: #ffffff;
+      outline: none;
+      transition: border-color 0.14s, box-shadow 0.14s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    textarea { resize: none; line-height: 1.5; }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #1d3557;
+      box-shadow: 0 0 0 3px rgba(29,53,87,0.12);
+    }
+
+    input.field-invalid, select.field-invalid, textarea.field-invalid {
+      border-color: #e74c3c !important;
+      box-shadow: 0 0 0 3px rgba(231,76,60,0.1) !important;
+    }
+
+    input.field-valid, select.field-valid, textarea.field-valid {
+      border-color: #27ae60;
+    }
+
+    input::placeholder { color: #c0c0c8; }
+
+    input.field-locked {
+      background: #f5f5f7;
+      color: #8e8e93;
+      cursor: default;
+      border-color: #e8e8ed;
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 0.78rem;
+    }
+
+    input.field-locked:focus {
+      border-color: #e8e8ed;
+      box-shadow: none;
+    }
+
+    .field-hint {
+      font-size: 0.7rem;
+      margin-top: 5px;
+      color: #c0392b;
+      display: none;
+    }
+    .field-hint.visible { display: block; }
+
+    .select-wrapper { position: relative; }
+    .select-wrapper::after {
+      content: "";
+      position: absolute; right: 12px; top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid #8e8e93;
+    }
+    .select-wrapper select { padding-right: 32px; cursor: pointer; }
+
+    /* ── Key Management ── */
+    .key-status {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 14px;
+      border-radius: 9px;
+      font-size: 0.83rem; font-weight: 500;
+      margin-bottom: 14px;
+    }
+    .key-status.none    { background: #fff8ec; border: 1px solid #ffe0a0; color: #7a4f00; }
+    .key-status.ready   { background: #f0faf4; border: 1px solid #b6e8c8; color: #1a7f4b; }
+    .key-status.working { background: #f2f4f8; border: 1px solid #d0d8e8; color: #3c4a60; }
+
+    .key-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: currentColor; flex-shrink: 0;
+    }
+
+    .jwks-row {
+      display: flex; gap: 8px; align-items: stretch;
+    }
+
+    .jwks-url {
+      flex: 1;
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 0.77rem;
+      background: #f5f5f7;
+      border: 1.5px solid #e0e0e5;
+      border-radius: 9px;
+      padding: 10px 13px;
+      color: #1d3557;
+      word-break: break-all;
+      cursor: default;
+      user-select: all;
+    }
+
+    .btn-copy {
+      padding: 0 14px;
+      background: #ffffff;
+      border: 1.5px solid #e0e0e5;
+      border-radius: 9px;
+      font-size: 0.78rem;
+      font-family: inherit;
+      font-weight: 600;
+      color: #1d3557;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.12s, border-color 0.12s;
+      width: auto;
+    }
+    .btn-copy:hover { background: #f2f4f8; border-color: #1d3557; }
+    .btn-copy.copied { color: #1a7f4b; border-color: #b6e8c8; background: #f0faf4; }
+
+    .hint-text {
+      font-size: 0.73rem;
+      color: #8e8e93;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    /* ── Setup Info Banner ── */
+    .setup-info {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      background: #eef4ff;
+      border-left: 3px solid #1d3557;
+      padding: 14px 18px;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      color: #2c3e50;
+    }
+
+    .setup-info-icon {
+      font-size: 1rem;
+      color: #1d3557;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .setup-reg-url {
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 0.75rem;
+      background: rgba(29,53,87,0.08);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #1d3557;
+      word-break: break-all;
+    }
+
+    /* ── Optional / Collapsible ── */
+    .optional-tag {
+      font-size: 0.65rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #8e8e93;
+      background: #f0f0f5;
+      border-radius: 4px;
+      padding: 2px 6px;
+      margin-left: 2px;
+      vertical-align: middle;
+      font-style: normal;
+    }
+
+    .section-title.collapsible {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .section-title.collapsible:hover { color: #2a4a73; }
+
+    .collapse-chevron {
+      margin-left: auto;
+      font-size: 0.65rem;
+      color: #b0b0ba;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+
+    .section-title.collapsible.open .collapse-chevron {
+      transform: rotate(180deg);
+    }
+
+    .collapsible-body { display: none; }
+    .collapsible-body.open { display: block; }
+
+    /* ── Buttons ── */
+    .launch-section {
+      padding: 20px 28px 24px;
+      background: #ffffff;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 13px 20px;
+      background: linear-gradient(135deg, #1d3557 0%, #2a4a73 100%);
+      color: #fff; border: none; border-radius: 10px;
+      font-size: 0.9375rem; font-family: inherit; font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.14s, transform 0.1s;
+      letter-spacing: -0.01em;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+
+    .btn-primary:hover   { opacity: 0.9; }
+    .btn-primary:active  { transform: scale(0.988); opacity: 0.85; }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .btn-secondary {
+      padding: 9px 16px;
+      background: #ffffff;
+      border: 1.5px solid #1d3557;
+      border-radius: 9px;
+      font-size: 0.85rem; font-family: inherit; font-weight: 600;
+      color: #1d3557; cursor: pointer;
+      transition: background 0.12s;
+      display: inline-flex; align-items: center; gap: 6px;
+      width: auto;
+    }
+    .btn-secondary:hover    { background: #f2f4f8; }
+    .btn-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .message {
+      margin-top: 12px; padding: 11px 14px;
+      border-radius: 8px; font-size: 0.85rem; display: none;
+    }
+    .message.error   { background: #fff2f2; border: 1px solid #ffd0d0; color: #c0392b; display: block; }
+    .message.success { background: #f0faf4; border: 1px solid #b6e8c8; color: #1a7f4b; display: block; }
+
+    /* ── Log ── */
+    .log-section { display: none; border-top: 1px solid #f0f0f2; }
+    .log-section.visible { display: block; }
+
+    .log-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 28px 10px;
+      background: #f9f9fb; border-bottom: 1px solid #f0f0f2;
+    }
+
+    .log-title {
+      font-size: 0.68rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em; color: #1d3557;
+    }
+
+    .log-clear {
+      background: none; border: none; color: #8e8e93;
+      font-size: 0.75rem; font-family: inherit; cursor: pointer;
+      padding: 0; width: auto; margin-top: 0;
+      text-decoration: underline; font-weight: 400;
+    }
+    .log-clear:hover { color: #1d3557; }
+
+    .log-box {
+      background: #0f1923; color: #e5e5ea;
+      padding: 16px 20px;
+      font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+      font-size: 0.73rem; line-height: 1.75;
+      white-space: pre-wrap; word-break: break-all;
+      max-height: 360px; overflow-y: auto;
+    }
+
+    .log-box .log-url  { color: #64d2ff; font-weight: 700; }
+    .log-box .log-key  { color: #7eb8f7; }
+    .log-box .log-val  { color: #5dd68c; }
+    .log-box .log-sep  { color: #3a4a5a; }
+    .log-box .log-head { color: #ff6b6b; font-weight: 700; display: block; }
+    .log-box .log-dim  { color: #3a4a5a; }
+  </style>
+</head>
+<body>
+<div class="card">
+
+  <!-- Header -->
+  <div class="tool-header">
+    <div class="tool-icon">🔗</div>
+    <div class="tool-header-text">
+      <h1>LTI Launch Tester</h1>
+      <p>Amira Learning · SSO Integration Tester</p>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <a class="tab active" href="#tab-lti10">LTI 1.0</a>
+    <a class="tab" href="#tab-lti12">LTI 1.2</a>
+    <a class="tab" href="#tab-lti13">LTI 1.3</a>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       LTI 1.0 TAB
+       ════════════════════════════════════════════ -->
+  <div id="tab-lti10" class="tab-content active">
+  <form id="launch-form-10" novalidate>
+
+    <div class="section">
+      <div class="section-title">Credentials</div>
+      <div class="field-group">
+        <label for="launch-url">Launch URL</label>
+        <input type="text" id="launch-url"
+               value="https://sso.app.amiralearning.com/dwe-lti-sso/Launch/lti"
+               autocomplete="off" spellcheck="false" readonly class="field-locked">
+      </div>
+      <div class="two-col">
+        <div class="field-group">
+          <label for="consumer-key">Consumer Key</label>
+          <input type="text" id="consumer-key" placeholder="your_consumer_key"
+                 autocomplete="off" spellcheck="false"
+                 data-validate="required" data-label="Consumer Key">
+          <div class="field-hint" id="hint-consumer-key"></div>
+        </div>
+        <div class="field-group">
+          <label for="consumer-secret">Consumer Secret</label>
+          <input type="password" id="consumer-secret" placeholder="your_consumer_secret"
+                 autocomplete="off"
+                 data-validate="required" data-label="Consumer Secret">
+          <div class="field-hint" id="hint-consumer-secret"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section shaded">
+      <div class="section-title">User Identity</div>
+      <div class="two-col">
+        <div class="field-group">
+          <label for="user-id-field">ID Field</label>
+          <div class="select-wrapper">
+            <select id="user-id-field">
+              <option value="user_id">School Assigned ID</option>
+              <option value="lis_person_contact_email_primary">E-mail Address</option>
+              <option value="ext_user_username">3rd Party ID</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-group">
+          <label for="user-id-value">ID Value</label>
+          <input type="text" id="user-id-value" placeholder="t9447"
+                 autocomplete="off" spellcheck="false"
+                 data-validate="userid" data-label="ID Value">
+          <div class="field-hint" id="hint-user-id-value"></div>
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="roles">Role</label>
+        <div class="select-wrapper">
+          <select id="roles">
+            <option value="Learner">Student (Learner)</option>
+            <option value="Instructor">Teacher (Instructor)</option>
+            <option value="Administrator">Administrator</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="launch-section">
+      <button type="submit" class="btn-primary" id="submit-btn-10">
+        &#9658;&nbsp; Launch LTI Tool
+      </button>
+      <div class="message" id="status-msg-10"></div>
+    </div>
+
+    <div class="log-section" id="log-section-10">
+      <div class="log-header">
+        <span class="log-title">Request Log</span>
+        <button type="button" class="log-clear" id="log-clear-10">Clear</button>
+      </div>
+      <div class="log-box" id="log-box-10"></div>
+    </div>
+
+  </form>
+  </div><!-- /tab-lti10 -->
+
+  <!-- ════════════════════════════════════════════
+       LTI 1.2 TAB
+       ════════════════════════════════════════════ -->
+  <div id="tab-lti12" class="tab-content">
+  <form id="launch-form-12" novalidate>
+
+    <div class="section">
+      <div class="section-title">Credentials</div>
+      <div class="field-group">
+        <label for="launch-url-12">Launch URL</label>
+        <input type="text" id="launch-url-12"
+               value="https://sso.app.amiralearning.com/dwe-lti-sso/Launch/lti"
+               autocomplete="off" spellcheck="false" readonly class="field-locked">
+      </div>
+      <div class="two-col">
+        <div class="field-group">
+          <label for="consumer-key-12">Consumer Key</label>
+          <input type="text" id="consumer-key-12" placeholder="your_consumer_key"
+                 autocomplete="off" spellcheck="false"
+                 data-validate="required" data-label="Consumer Key">
+          <div class="field-hint" id="hint-consumer-key-12"></div>
+        </div>
+        <div class="field-group">
+          <label for="consumer-secret-12">Consumer Secret</label>
+          <input type="password" id="consumer-secret-12" placeholder="your_consumer_secret"
+                 autocomplete="off"
+                 data-validate="required" data-label="Consumer Secret">
+          <div class="field-hint" id="hint-consumer-secret-12"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section shaded">
+      <div class="section-title">User Identity</div>
+      <div class="two-col">
+        <div class="field-group">
+          <label for="user-id-field-12">ID Field</label>
+          <div class="select-wrapper">
+            <select id="user-id-field-12">
+              <option value="user_id">School Assigned ID</option>
+              <option value="lis_person_contact_email_primary">E-mail Address</option>
+              <option value="ext_user_username">3rd Party ID</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-group">
+          <label for="user-id-value-12">ID Value</label>
+          <input type="text" id="user-id-value-12" placeholder="t9447"
+                 autocomplete="off" spellcheck="false"
+                 data-validate="userid" data-label="ID Value">
+          <div class="field-hint" id="hint-user-id-value-12"></div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field-group">
+          <label for="person-name-given-12">First Name <span class="optional-tag">optional</span></label>
+          <input type="text" id="person-name-given-12" placeholder="Jane"
+                 autocomplete="off" spellcheck="false">
+        </div>
+        <div class="field-group">
+          <label for="person-name-family-12">Last Name <span class="optional-tag">optional</span></label>
+          <input type="text" id="person-name-family-12" placeholder="Smith"
+                 autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="roles-12">Role</label>
+        <div class="select-wrapper">
+          <select id="roles-12">
+            <option value="Learner">Student (Learner)</option>
+            <option value="Instructor">Teacher (Instructor)</option>
+            <option value="Administrator">Administrator</option>
+          </select>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field-group">
+          <label for="response-format-12">Response Format</label>
+          <div class="select-wrapper">
+            <select id="response-format-12">
+              <option value="">None</option>
+              <option value="xml">XML</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-group" id="outcomes-url-group-12" style="display:none">
+          <label for="outcomes-url-12">Outcomes Service URL</label>
+          <input type="text" id="outcomes-url-12" placeholder="https://your-lms/outcomes"
+                 autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title collapsible" id="context-toggle-12">
+        Context &amp; Platform
+        <span class="optional-tag">optional</span>
+        <span class="collapse-chevron">▼</span>
+      </div>
+      <div class="collapsible-body" id="context-body-12">
+        <div class="two-col">
+          <div class="field-group">
+            <label for="context-id-12">Context ID</label>
+            <input type="text" id="context-id-12" placeholder="course_101"
+                   autocomplete="off" spellcheck="false">
+          </div>
+          <div class="field-group">
+            <label for="context-label-12">Context Label</label>
+            <input type="text" id="context-label-12" placeholder="ELA-3A"
+                   autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="field-group">
+          <label for="context-title-12">Context Title</label>
+          <input type="text" id="context-title-12" placeholder="3rd Grade Language Arts — Section A"
+                 autocomplete="off" spellcheck="false">
+        </div>
+        <div class="two-col">
+          <div class="field-group">
+            <label for="tc-guid-12">Tool Consumer GUID</label>
+            <input type="text" id="tc-guid-12" placeholder="marion-isd.schoology.com"
+                   autocomplete="off" spellcheck="false">
+          </div>
+          <div class="field-group">
+            <label for="tc-platform-12">Platform</label>
+            <div class="select-wrapper">
+              <select id="tc-platform-12">
+                <option value="">— None —</option>
+                <option value="schoology">Schoology</option>
+                <option value="canvas">Canvas</option>
+                <option value="blackboard">Blackboard</option>
+                <option value="moodle">Moodle</option>
+                <option value="desire2learn">Desire2Learn</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="launch-section">
+      <button type="submit" class="btn-primary" id="submit-btn-12">
+        &#9658;&nbsp; Launch LTI Tool
+      </button>
+      <div class="message" id="status-msg-12"></div>
+    </div>
+
+    <div class="log-section" id="log-section-12">
+      <div class="log-header">
+        <span class="log-title">Request Log</span>
+        <button type="button" class="log-clear" id="log-clear-12">Clear</button>
+      </div>
+      <div class="log-box" id="log-box-12"></div>
+    </div>
+
+  </form>
+  </div><!-- /tab-lti12 -->
+
+  <!-- ════════════════════════════════════════════
+       LTI 1.3 TAB
+       ════════════════════════════════════════════ -->
+  <div id="tab-lti13" class="tab-content">
+
+    <!-- Setup info banner -->
+    <div class="setup-info">
+      <div class="setup-info-icon">ℹ</div>
+      <div>
+        <strong>First time?</strong> Complete LTI 1.3 registration with Amira before launching.
+        Give Amira this URL to start:
+        <span class="setup-reg-url">https://sso.app.amiralearning.com/dwe-lti-sso/Registration/Init</span>
+        <br>After registration, Amira will confirm your <strong>Client ID</strong> and <strong>Deployment ID</strong>.
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Connection</div>
+      <div class="field-group">
+        <label for="init-url">Init URL (Amira's OIDC Endpoint)</label>
+        <input type="text" id="init-url"
+               value="https://sso.app.amiralearning.com/dwe-lti-sso/Launch/lti/1.3/init"
+               autocomplete="off" spellcheck="false" readonly class="field-locked">
+      </div>
+      <div class="two-col">
+        <div class="field-group">
+          <label for="client-id">Client ID</label>
+          <input type="text" id="client-id" placeholder="e.g. admin.1000243642.ia"
+                 autocomplete="off" spellcheck="false"
+                 data-validate="required" data-label="Client ID">
+          <div class="field-hint" id="hint-client-id"></div>
+          <div class="hint-text">Provided after LTI 1.3 registration. Identifies your LMS to Amira — may follow the <em>admin.{districtId}.{state}</em> format.</div>
+        </div>
+        <div class="field-group">
+          <label for="deployment-id">Deployment ID</label>
+          <input type="text" id="deployment-id" placeholder="e.g. 1"
+                 autocomplete="off" spellcheck="false"
+                 data-validate="required" data-label="Deployment ID">
+          <div class="field-hint" id="hint-deployment-id"></div>
+          <div class="hint-text">Provided after registration. Typically <em>1</em> for a single deployment per Client ID.</div>
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="issuer-id">Issuer ID (Your Platform URL)</label>
+        <input type="text" id="issuer-id" placeholder="https://script.google.com/macros/s/…/exec"
+               autocomplete="off" spellcheck="false"
+               data-validate="url" data-label="Issuer ID">
+        <div class="field-hint" id="hint-issuer-id"></div>
+        <div class="hint-text">Your Apps Script web app URL. This is the URL you give Amira as your platform. Auto-filled when running in Apps Script.</div>
+      </div>
+      <div class="two-col">
+        <div class="field-group">
+          <label for="target-link-uri-13">Target Link URI <span class="optional-tag">optional</span></label>
+          <input type="text" id="target-link-uri-13"
+                 placeholder="e.g. https://amiralearning.com"
+                 autocomplete="off" spellcheck="false">
+          <div class="hint-text">The resource URL Amira should land on after login. Defaults to the Init URL if left blank.</div>
+        </div>
+        <div class="field-group">
+          <label for="lti-message-hint-13">LTI Message Hint <span class="optional-tag">optional</span></label>
+          <input type="text" id="lti-message-hint-13"
+                 placeholder="e.g. 123456"
+                 autocomplete="off" spellcheck="false">
+          <div class="hint-text">Passed through the OIDC redirect to identify the resource being launched.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section shaded">
+      <div class="section-title">RSA Key Pair</div>
+
+      <div class="key-status none" id="key-status">
+        <div class="key-dot"></div>
+        <span id="key-status-text">No key pair generated yet.</span>
+      </div>
+
+      <div style="display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
+        <button type="button" class="btn-secondary" id="btn-generate-keys">
+          ⚙ Generate New Key Pair
+        </button>
+        <button type="button" class="btn-secondary" id="btn-save-jwks" style="display:none">
+          ☁ Save Public Key to Server
+        </button>
+      </div>
+
+      <div id="jwks-row-wrapper" style="display:none">
+        <label>JWKS URL <span style="font-weight:400;text-transform:none;letter-spacing:0">(share with Amira)</span></label>
+        <div class="jwks-row">
+          <div class="jwks-url" id="jwks-url-display">—</div>
+          <button type="button" class="btn-copy" id="btn-copy-jwks">Copy</button>
+        </div>
+        <div class="hint-text">Amira uses this URL to fetch your public key and verify the JWT you sign.</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">User Identity</div>
+      <div class="two-col">
+        <div class="field-group">
+          <label for="user-id-field-13">ID Field</label>
+          <div class="select-wrapper">
+            <select id="user-id-field-13">
+              <option value="user_id">School Assigned ID</option>
+              <option value="lis_person_contact_email_primary">E-mail Address</option>
+              <option value="ext_user_username">3rd Party ID</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-group">
+          <label for="user-id-value-13">ID Value</label>
+          <input type="text" id="user-id-value-13" placeholder="t9447"
+                 autocomplete="off" spellcheck="false"
+                 data-validate="userid" data-label="ID Value">
+          <div class="field-hint" id="hint-user-id-value-13"></div>
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="roles-13">Role</label>
+        <div class="select-wrapper">
+          <select id="roles-13">
+            <option value="Learner">Student (Learner)</option>
+            <option value="Instructor">Teacher (Instructor)</option>
+            <option value="Administrator">Administrator</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="resource-link-id-13">Resource Link ID <span class="optional-tag">optional</span></label>
+        <input type="text" id="resource-link-id-13" placeholder="Auto-generated"
+               autocomplete="off" spellcheck="false">
+        <div class="hint-text">Leave blank to auto-generate a UUID each launch.</div>
+      </div>
+    </div>
+
+    <div class="launch-section">
+      <button type="button" class="btn-primary" id="launch-btn-13">
+        &#9658;&nbsp; Start LTI 1.3 Launch
+      </button>
+      <div class="message" id="status-msg-13"></div>
+    </div>
+
+    <div class="log-section" id="log-section-13">
+      <div class="log-header">
+        <span class="log-title">OIDC Flow Log</span>
+        <button type="button" class="log-clear" id="log-clear-13">Clear</button>
+      </div>
+      <div class="log-box" id="log-box-13"></div>
+    </div>
+
+  </div><!-- /tab-lti13 -->
+
+</div><!-- /.card -->
+
+<script>
+// ── Utilities ──────────────────────────────────────────────────────────────────
+
+function oauthEncode(str) {
+  return encodeURIComponent(String(str))
+    .replace(/!/g,  '%21').replace(/'/g,  '%27')
+    .replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A');
+}
+
+function generateNonce() {
+  const buf = new Uint8Array(18);
+  crypto.getRandomValues(buf);
+  return Array.from(buf, b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function generateUUID() {
+  if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+  const buf = new Uint8Array(16);
+  crypto.getRandomValues(buf);
+  buf[6] = (buf[6] & 0x0f) | 0x40;
+  buf[8] = (buf[8] & 0x3f) | 0x80;
+  const h = Array.from(buf, b => b.toString(16).padStart(2, '0')).join('');
+  return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`;
+}
+
+function base64urlEncode(str) {
+  const bytes = new TextEncoder().encode(str);
+  return base64urlEncodeBytes(bytes);
+}
+
+function base64urlEncodeBytes(bytes) {
+  let b = '';
+  bytes.forEach(byte => b += String.fromCharCode(byte));
+  return btoa(b).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+// ── Pure-JS SHA-1 / HMAC-SHA1 ─────────────────────────────────────────────────
+
+function _sha1(msgBytes) {
+  let h0=0x67452301,h1=0xEFCDAB89,h2=0x98BADCFE,h3=0x10325476,h4=0xC3D2E1F0;
+  const len=msgBytes.length,bitLen=len*8;
+  const padLen=((len%64)<56)?(56-len%64):(120-len%64);
+  const padded=new Uint8Array(len+padLen+8);
+  padded.set(msgBytes); padded[len]=0x80;
+  const dv=new DataView(padded.buffer);
+  dv.setUint32(padded.length-8,Math.floor(bitLen/0x100000000)>>>0,false);
+  dv.setUint32(padded.length-4,bitLen>>>0,false);
+  const rotl=(x,n)=>((x<<n)|(x>>>(32-n)))>>>0;
+  const w=new Uint32Array(80);
+  for(let off=0;off<padded.length;off+=64){
+    const blk=new DataView(padded.buffer,off,64);
+    for(let i=0;i<16;i++)w[i]=blk.getUint32(i*4,false);
+    for(let i=16;i<80;i++)w[i]=rotl(w[i-3]^w[i-8]^w[i-14]^w[i-16],1);
+    let a=h0,b=h1,c=h2,d=h3,e=h4;
+    for(let i=0;i<80;i++){
+      let f,k;
+      if(i<20){f=((b&c)|(~b&d))>>>0;k=0x5A827999;}
+      else if(i<40){f=(b^c^d)>>>0;k=0x6ED9EBA1;}
+      else if(i<60){f=((b&c)|(b&d)|(c&d))>>>0;k=0x8F1BBCDC;}
+      else{f=(b^c^d)>>>0;k=0xCA62C1D6;}
+      const tmp=(rotl(a,5)+f+e+k+w[i])>>>0;
+      e=d;d=c;c=rotl(b,30);b=a;a=tmp;
+    }
+    h0=(h0+a)>>>0;h1=(h1+b)>>>0;h2=(h2+c)>>>0;h3=(h3+d)>>>0;h4=(h4+e)>>>0;
+  }
+  const out=new Uint8Array(20),ov=new DataView(out.buffer);
+  ov.setUint32(0,h0,false);ov.setUint32(4,h1,false);
+  ov.setUint32(8,h2,false);ov.setUint32(12,h3,false);
+  ov.setUint32(16,h4,false);
+  return out;
+}
+
+function hmacSha1Base64(key, message) {
+  const enc=new TextEncoder();
+  let kb=enc.encode(key);
+  const mb=enc.encode(message),B=64;
+  if(kb.length>B)kb=_sha1(kb);
+  const k=new Uint8Array(B);k.set(kb);
+  const ipad=new Uint8Array(B),opad=new Uint8Array(B);
+  for(let i=0;i<B;i++){ipad[i]=k[i]^0x36;opad[i]=k[i]^0x5C;}
+  const inner=new Uint8Array(B+mb.length);
+  inner.set(ipad);inner.set(mb,B);
+  const ih=_sha1(inner);
+  const outer=new Uint8Array(B+20);
+  outer.set(opad);outer.set(ih,B);
+  return btoa(String.fromCharCode(..._sha1(outer)));
+}
+
+// ── Tab Switching ──────────────────────────────────────────────────────────────
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const href = tab.getAttribute('href') || '';
+    const target = href.replace('#', '');
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    if (target) document.getElementById(target).classList.add('active');
+  });
+});
+
+// ── Inline Validation ──────────────────────────────────────────────────────────
+
+function isValidUrl(str) {
+  try {
+    const u = new URL(str);
+    return u.protocol === 'https:' || u.protocol === 'http:';
+  } catch (_) { return false; }
+}
+
+function isValidEmail(str) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str);
+}
+
+const VALIDATORS = {
+  url: (val, label) => {
+    if (!val) return `${label} is required.`;
+    if (!isValidUrl(val)) return `Must be a valid URL starting with https://`;
+    return null;
+  },
+  required: (val, label) => {
+    if (!val.trim()) return `${label} is required.`;
+    return null;
+  },
+  userid: (val, label, input) => {
+    if (!val.trim()) return `${label} is required.`;
+    const form = input.closest('.tab-content, form');
+    const sel = form && (form.querySelector('[id^="user-id-field"]'));
+    if (sel && sel.value === 'lis_person_contact_email_primary' && !isValidEmail(val)) {
+      return 'Looks like an invalid email address.';
+    }
+    return null;
+  },
+};
+
+function validateInput(input) {
+  const vtype = input.dataset.validate;
+  if (!vtype) return true;
+  const label = input.dataset.label || 'This field';
+  const val   = input.value;
+  const hintId = 'hint-' + input.id;
+  const hintEl = document.getElementById(hintId);
+  const error = VALIDATORS[vtype] ? VALIDATORS[vtype](val, label, input) : null;
+  if (error) {
+    input.classList.add('field-invalid');
+    input.classList.remove('field-valid');
+    if (hintEl) { hintEl.textContent = error; hintEl.classList.add('visible'); }
+    return false;
+  } else {
+    input.classList.remove('field-invalid');
+    if (val.trim()) input.classList.add('field-valid');
+    if (hintEl) { hintEl.textContent = ''; hintEl.classList.remove('visible'); }
+    return true;
+  }
+}
+
+document.querySelectorAll('input[data-validate]').forEach(input => {
+  let touched = false;
+  input.addEventListener('blur', () => { touched = true; validateInput(input); });
+  input.addEventListener('input', () => { if (touched) validateInput(input); });
+});
+
+['user-id-field', 'user-id-field-12', 'user-id-field-13'].forEach(selId => {
+  const sel = document.getElementById(selId);
+  if (!sel) return;
+  sel.addEventListener('change', () => {
+    const suffix = selId.endsWith('-13') ? '-13' : selId.endsWith('-12') ? '-12' : '';
+    const valInput = document.getElementById('user-id-value' + suffix);
+    if (valInput && valInput.classList.contains('field-invalid')) validateInput(valInput);
+  });
+});
+
+// ── Status helpers ─────────────────────────────────────────────────────────────
+
+function setStatus(id, type, text) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'message ' + type;
+  el.textContent = text;
+}
+
+function clearStatus(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'message';
+  el.textContent = '';
+}
+
+// ── LTI 1.0 Log ───────────────────────────────────────────────────────────────
+
+function buildLogEntry(postUrl, postParams, meta, ts) {
+  const paramRows = Object.entries(postParams).map(([k, v]) => {
+    const dim = k === 'oauth_signature' || k === 'oauth_consumer_key';
+    return `  <span class="log-key">${k}</span><span class="log-sep"> = </span><span class="${dim ? 'log-dim' : 'log-val'}">${v}</span>`;
+  }).join('\n');
+  return [
+    `<span class="log-head">▶ POST  ${ts}</span>`,
+    `<span class="log-url">${postUrl}</span>`,
+    ``,
+    `<span class="log-key">── Parameters ──────────────────────────────</span>`,
+    paramRows,
+    ``,
+    `<span class="log-key">── OAuth Signature ─────────────────────────</span>`,
+    `  <span class="log-key">method</span><span class="log-sep">        = </span><span class="log-val">HMAC-SHA1</span>`,
+    `  <span class="log-key">signing_key</span><span class="log-sep">   = </span><span class="log-dim">${meta.signingKey}</span>`,
+    `  <span class="log-key">base_string</span><span class="log-sep">   = </span><span class="log-dim">${meta.baseString}</span>`,
+    `  <span class="log-key">signature</span><span class="log-sep">     = </span><span class="log-val">${meta.signature}</span>`,
+    `<span class="log-sep">────────────────────────────────────────────</span>`,
+  ].join('\n');
+}
+
+function showLog(sectionId, boxId, postUrl, postParams, meta) {
+  const section = document.getElementById(sectionId);
+  const box     = document.getElementById(boxId);
+  const entry   = buildLogEntry(postUrl, postParams, meta, new Date().toLocaleTimeString());
+  box.innerHTML = entry + (box.innerHTML ? '\n\n' + box.innerHTML : '');
+  section.classList.add('visible');
+}
+
+document.getElementById('log-clear-10').addEventListener('click', () => {
+  document.getElementById('log-box-10').innerHTML = '';
+  document.getElementById('log-section-10').classList.remove('visible');
+});
+
+document.getElementById('log-clear-12').addEventListener('click', () => {
+  document.getElementById('log-box-12').innerHTML = '';
+  document.getElementById('log-section-12').classList.remove('visible');
+});
+
+// ── Shared LTI 1.0/1.2 POST helper ────────────────────────────────────────────
+
+function postLtiForm(launchUrl, postParams, btn, originalLabel, tabName) {
+  const form = document.createElement('form');
+  form.method = 'POST'; form.action = launchUrl; form.target = tabName || '_blank';
+  form.enctype = 'application/x-www-form-urlencoded';
+  form.style.display = 'none';
+  for (const [name, value] of Object.entries(postParams)) {
+    const inp = document.createElement('input');
+    inp.type = 'hidden'; inp.name = name; inp.value = value;
+    form.appendChild(inp);
+  }
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+  btn.disabled = false;
+  btn.innerHTML = originalLabel;
+}
+
+// ── LTI 1.0 Launch ────────────────────────────────────────────────────────────
+
+document.getElementById('launch-form-10').addEventListener('submit', (e) => {
+  e.preventDefault();
+  clearStatus('status-msg-10');
+
+  const inputs = document.querySelectorAll('#tab-lti10 input[data-validate]');
+  let allValid = true;
+  inputs.forEach(inp => { if (!validateInput(inp)) allValid = false; });
+  if (!allValid) return;
+
+  const launchUrl      = document.getElementById('launch-url').value.trim();
+  const consumerKey    = document.getElementById('consumer-key').value.trim();
+  const consumerSecret = document.getElementById('consumer-secret').value.trim();
+  const userIdField    = document.getElementById('user-id-field').value;
+  const userIdValue    = document.getElementById('user-id-value').value.trim();
+  const roles          = document.getElementById('roles').value;
+
+  let parsedUrl;
+  try { parsedUrl = new URL(launchUrl); }
+  catch (_) { return setStatus('status-msg-10', 'error', 'Launch URL is not valid.'); }
+
+  const tabName = 'lti_launch_' + Date.now();
+  let newTab;
+  try { newTab = window.open('about:blank', tabName); } catch(_) {}
+  if (!newTab) {
+    return setStatus('status-msg-10', 'error', 'Pop-ups are blocked. Please allow pop-ups for this page, or open the tester directly in its own tab.');
+  }
+
+  const btn = document.getElementById('submit-btn-10');
+  btn.disabled = true; btn.textContent = 'Signing…';
+
+  try {
+    const timestamp = Math.floor(Date.now() / 1000).toString();
+    const nonce = generateNonce();
+    const resourceLinkId = generateUUID();
+    const normalizedUrl = parsedUrl.protocol.toLowerCase() + '//' + parsedUrl.host.toLowerCase() + parsedUrl.pathname;
+
+    const params = {};
+    for (const [k, v] of parsedUrl.searchParams.entries()) params[k] = v;
+    params['lti_message_type']       = 'basic-lti-launch-request';
+    params['lti_version']            = 'LTI-1p0';
+    params['resource_link_id']       = resourceLinkId;
+    params['oauth_consumer_key']     = consumerKey;
+    params['oauth_nonce']            = nonce;
+    params['oauth_signature_method'] = 'HMAC-SHA1';
+    params['oauth_timestamp']        = timestamp;
+    params['oauth_version']          = '1.0';
+    params['user_id']                = userIdValue;
+    if (userIdField !== 'user_id') params[userIdField] = userIdValue;
+    params['roles'] = roles;
+
+    const sortedEncoded = Object.entries(params)
+      .map(([k, v]) => [oauthEncode(k), oauthEncode(v)])
+      .sort((a, b) => a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0);
+    const paramString = sortedEncoded.map(([k, v]) => `${k}=${v}`).join('&');
+    const baseString  = 'POST&' + oauthEncode(normalizedUrl) + '&' + oauthEncode(paramString);
+    const signingKey  = oauthEncode(consumerSecret) + '&';
+    const signature   = hmacSha1Base64(signingKey, baseString);
+    const postParams  = Object.assign({}, params, { oauth_signature: signature });
+
+    showLog('log-section-10', 'log-box-10', launchUrl, postParams, { signingKey, baseString, signature });
+    setStatus('status-msg-10', 'success', `Launching to ${parsedUrl.hostname} in a new tab…`);
+    postLtiForm(launchUrl, postParams, btn, '&#9658;&nbsp; Launch LTI Tool', tabName);
+  } catch (err) {
+    if (newTab) newTab.close();
+    setStatus('status-msg-10', 'error', 'Signature error: ' + err.message);
+    btn.disabled = false;
+    btn.innerHTML = '&#9658;&nbsp; Launch LTI Tool';
+  }
+});
+
+// ── Collapsible sections ──────────────────────────────────────────────────────
+
+document.getElementById('context-toggle-12').addEventListener('click', function () {
+  this.classList.toggle('open');
+  document.getElementById('context-body-12').classList.toggle('open');
+});
+
+// ── LTI 1.2 — Response Format toggle ─────────────────────────────────────────
+
+document.getElementById('response-format-12').addEventListener('change', function () {
+  document.getElementById('outcomes-url-group-12').style.display =
+    this.value === 'xml' ? 'block' : 'none';
+});
+
+// ── LTI 1.2 Launch ────────────────────────────────────────────────────────────
+
+document.getElementById('launch-form-12').addEventListener('submit', (e) => {
+  e.preventDefault();
+  clearStatus('status-msg-12');
+
+  const inputs = document.querySelectorAll('#tab-lti12 input[data-validate]');
+  let allValid = true;
+  inputs.forEach(inp => { if (!validateInput(inp)) allValid = false; });
+  if (!allValid) return;
+
+  const launchUrl      = document.getElementById('launch-url-12').value.trim();
+  const consumerKey    = document.getElementById('consumer-key-12').value.trim();
+  const consumerSecret = document.getElementById('consumer-secret-12').value.trim();
+  const userIdField    = document.getElementById('user-id-field-12').value;
+  const userIdValue    = document.getElementById('user-id-value-12').value.trim();
+  const roles          = document.getElementById('roles-12').value;
+  const givenName      = document.getElementById('person-name-given-12').value.trim();
+  const familyName     = document.getElementById('person-name-family-12').value.trim();
+  const contextId      = document.getElementById('context-id-12').value.trim();
+  const contextLabel   = document.getElementById('context-label-12').value.trim();
+  const contextTitle   = document.getElementById('context-title-12').value.trim();
+  const tcGuid         = document.getElementById('tc-guid-12').value.trim();
+  const tcPlatform     = document.getElementById('tc-platform-12').value;
+  const responseFormat = document.getElementById('response-format-12').value;
+  const outcomesUrl    = document.getElementById('outcomes-url-12').value.trim();
+
+  let parsedUrl;
+  try { parsedUrl = new URL(launchUrl); }
+  catch (_) { return setStatus('status-msg-12', 'error', 'Launch URL is not valid.'); }
+
+  const tabName = 'lti_launch_' + Date.now();
+  let newTab;
+  try { newTab = window.open('about:blank', tabName); } catch(_) {}
+  if (!newTab) {
+    return setStatus('status-msg-12', 'error', 'Pop-ups are blocked. Please allow pop-ups for this page, or open the tester directly in its own tab.');
+  }
+
+  const btn = document.getElementById('submit-btn-12');
+  btn.disabled = true; btn.textContent = 'Signing…';
+
+  try {
+    const timestamp = Math.floor(Date.now() / 1000).toString();
+    const nonce = generateNonce();
+    const resourceLinkId = generateUUID();
+    const normalizedUrl = parsedUrl.protocol.toLowerCase() + '//' + parsedUrl.host.toLowerCase() + parsedUrl.pathname;
+
+    const params = {};
+    for (const [k, v] of parsedUrl.searchParams.entries()) params[k] = v;
+    params['lti_message_type']       = 'basic-lti-launch-request';
+    params['lti_version']            = 'LTI-1p0';
+    params['resource_link_id']       = resourceLinkId;
+    params['oauth_consumer_key']     = consumerKey;
+    params['oauth_nonce']            = nonce;
+    params['oauth_signature_method'] = 'HMAC-SHA1';
+    params['oauth_timestamp']        = timestamp;
+    params['oauth_version']          = '1.0';
+    params['user_id']                = userIdValue;
+    if (userIdField !== 'user_id') params[userIdField] = userIdValue;
+    params['roles'] = roles;
+
+    if (givenName)  params['lis_person_name_given']  = givenName;
+    if (familyName) params['lis_person_name_family'] = familyName;
+    if (givenName && familyName) params['lis_person_name_full'] = givenName + ' ' + familyName;
+    if (contextId)    params['context_id']    = contextId;
+    if (contextLabel) params['context_label'] = contextLabel;
+    if (contextTitle) params['context_title'] = contextTitle;
+    if (contextId)    params['context_type']  = 'CourseSection';
+    if (tcGuid)     params['tool_consumer_instance_guid'] = tcGuid;
+    if (tcPlatform) params['tool_consumer_info_product_family_code'] = tcPlatform;
+    if (responseFormat === 'xml') {
+      params['lis_result_sourcedid'] = generateUUID();
+      if (outcomesUrl) params['lis_outcome_service_url'] = outcomesUrl;
+    }
+
+    const sortedEncoded = Object.entries(params)
+      .map(([k, v]) => [oauthEncode(k), oauthEncode(v)])
+      .sort((a, b) => a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0);
+    const paramString = sortedEncoded.map(([k, v]) => `${k}=${v}`).join('&');
+    const baseString  = 'POST&' + oauthEncode(normalizedUrl) + '&' + oauthEncode(paramString);
+    const signingKey  = oauthEncode(consumerSecret) + '&';
+    const signature   = hmacSha1Base64(signingKey, baseString);
+    const postParams  = Object.assign({}, params, { oauth_signature: signature });
+
+    showLog('log-section-12', 'log-box-12', launchUrl, postParams, { signingKey, baseString, signature });
+    setStatus('status-msg-12', 'success', `Launching to ${parsedUrl.hostname} in a new tab…`);
+    postLtiForm(launchUrl, postParams, btn, '&#9658;&nbsp; Launch LTI Tool', tabName);
+  } catch (err) {
+    if (newTab) newTab.close();
+    setStatus('status-msg-12', 'error', 'Signature error: ' + err.message);
+    btn.disabled = false;
+    btn.innerHTML = '&#9658;&nbsp; Launch LTI Tool';
+  }
+});
+
+// ── LTI 1.3 — Key Management ──────────────────────────────────────────────────
+
+let lti13KeyPair = null;
+let scriptUrl    = '';
+
+if (typeof google !== 'undefined' && google.script) {
+  google.script.run
+    .withSuccessHandler(url => {
+      scriptUrl = url;
+      document.getElementById('issuer-id').value = url;
+      const display = document.getElementById('jwks-url-display');
+      if (display.textContent === '—') display.textContent = url + '?action=jwks';
+    })
+    .withFailureHandler(() => {})
+    .getScriptUrl();
+}
+
+function setKeyStatus(type, text) {
+  const el  = document.getElementById('key-status');
+  const txt = document.getElementById('key-status-text');
+  el.className    = 'key-status ' + type;
+  txt.textContent = text;
+}
+
+document.getElementById('btn-generate-keys').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-generate-keys');
+  btn.disabled = true; btn.textContent = '⏳ Generating…';
+  setKeyStatus('working', 'Generating 2048-bit RSA key pair…');
+
+  try {
+    const keyPair = await crypto.subtle.generateKey(
+      { name: 'RSASSA-PKCS1-v1_5', modulusLength: 2048, publicExponent: new Uint8Array([1,0,1]), hash: 'SHA-256' },
+      true, ['sign', 'verify']
+    );
+    const privateKeyJwk = await crypto.subtle.exportKey('jwk', keyPair.privateKey);
+    const publicKeyJwk  = await crypto.subtle.exportKey('jwk', keyPair.publicKey);
+    const kid = 'lti-key-' + Date.now();
+    privateKeyJwk.kid = kid; publicKeyJwk.kid = kid;
+    const publicJwks = JSON.stringify({ keys: [{ ...publicKeyJwk, use: 'sig', alg: 'RS256' }] });
+    lti13KeyPair = { privateKeyJwk, publicKeyJwk, publicJwks, kid };
+    sessionStorage.setItem('lti13_private_key', JSON.stringify(privateKeyJwk));
+    setKeyStatus('ready', 'Key pair ready. Public key staged for server.');
+    const jwksUrl = (scriptUrl || document.getElementById('issuer-id').value.trim()) + '?action=jwks';
+    document.getElementById('jwks-url-display').textContent = jwksUrl;
+    document.getElementById('jwks-row-wrapper').style.display = 'block';
+    document.getElementById('btn-save-jwks').style.display = 'inline-flex';
+    btn.disabled = false; btn.textContent = '⚙ Regenerate Key Pair';
+  } catch (err) {
+    setKeyStatus('none', 'Key generation failed: ' + err.message);
+    btn.disabled = false; btn.textContent = '⚙ Generate New Key Pair';
+  }
+});
+
+document.getElementById('btn-save-jwks').addEventListener('click', () => {
+  if (!lti13KeyPair) return;
+  const saveBtn = document.getElementById('btn-save-jwks');
+  saveBtn.disabled = true; saveBtn.textContent = '⏳ Saving…';
+  if (typeof google !== 'undefined' && google.script) {
+    google.script.run
+      .withSuccessHandler(() => {
+        setKeyStatus('ready', '✓ Public key saved to server. Amira can now verify your JWTs.');
+        saveBtn.disabled = false; saveBtn.textContent = '✓ Saved';
+      })
+      .withFailureHandler(err => {
+        setKeyStatus('ready', 'Save failed: ' + (err.message || err));
+        saveBtn.disabled = false; saveBtn.textContent = '☁ Save Public Key to Server';
+      })
+      .saveJwks(lti13KeyPair.publicJwks);
+  } else {
+    setKeyStatus('ready', 'Not running in Apps Script — key save skipped.');
+    saveBtn.disabled = false;
+  }
+});
+
+document.getElementById('btn-copy-jwks').addEventListener('click', () => {
+  const url = document.getElementById('jwks-url-display').textContent;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById('btn-copy-jwks');
+    btn.textContent = 'Copied!'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+});
+
+// ── LTI 1.3 Log ───────────────────────────────────────────────────────────────
+
+function showLog13(lines) {
+  const section = document.getElementById('log-section-13');
+  const box     = document.getElementById('log-box-13');
+  const ts = new Date().toLocaleTimeString();
+  const entry = [`<span class="log-head">▶ OIDC Initiation  ${ts}</span>`, ...lines].join('\n');
+  box.innerHTML = entry + (box.innerHTML ? '\n\n' + box.innerHTML : '');
+  section.classList.add('visible');
+}
+
+document.getElementById('log-clear-13').addEventListener('click', () => {
+  document.getElementById('log-box-13').innerHTML = '';
+  document.getElementById('log-section-13').classList.remove('visible');
+});
+
+// ── LTI 1.3 Launch ────────────────────────────────────────────────────────────
+
+document.getElementById('launch-btn-13').addEventListener('click', async () => {
+  clearStatus('status-msg-13');
+
+  const inputs = document.querySelectorAll('#tab-lti13 input[data-validate]');
+  let allValid = true;
+  inputs.forEach(inp => { if (!validateInput(inp)) allValid = false; });
+  if (!allValid) return;
+
+  if (!lti13KeyPair) {
+    return setStatus('status-msg-13', 'error', 'Generate and save an RSA key pair before launching.');
+  }
+
+  const initUrl        = document.getElementById('init-url').value.trim();
+  const clientId       = document.getElementById('client-id').value.trim();
+  const deploymentId   = document.getElementById('deployment-id').value.trim();
+  const issuerId       = document.getElementById('issuer-id').value.trim();
+  const userIdField    = document.getElementById('user-id-field-13').value;
+  const userIdValue    = document.getElementById('user-id-value-13').value.trim();
+  const roles          = document.getElementById('roles-13').value;
+  const targetLinkUri  = document.getElementById('target-link-uri-13').value.trim() || initUrl;
+  const ltiMessageHint = document.getElementById('lti-message-hint-13').value.trim();
+  const authCallback   = (scriptUrl || issuerId) + '?action=auth';
+
+  let resourceLinkId = document.getElementById('resource-link-id-13').value.trim();
+  if (!resourceLinkId) resourceLinkId = generateUUID();
+
+  const launchParams = {
+    issuerId, clientId, deploymentId,
+    userId: userIdValue, userIdField,
+    role: roles, resourceLinkId,
+    targetLinkUri, keyId: lti13KeyPair.kid,
+  };
+  sessionStorage.setItem('lti13_launch_params', JSON.stringify(launchParams));
+  sessionStorage.setItem('lti13_private_key',   JSON.stringify(lti13KeyPair.privateKeyJwk));
+
+  const oidcParams = {
+    iss:               issuerId,
+    login_hint:        userIdValue,
+    target_link_uri:   targetLinkUri,
+    lti_deployment_id: deploymentId,
+    client_id:         clientId,
+    redirect_uri:      authCallback,
+  };
+  if (ltiMessageHint) oidcParams['lti_message_hint'] = ltiMessageHint;
+
+  showLog13([
+    `<span class="log-url">${initUrl}</span>`,
+    ``,
+    `<span class="log-key">── OIDC Login Init Parameters ───────────────</span>`,
+    ...Object.entries(oidcParams).map(([k, v]) =>
+      `  <span class="log-key">${k}</span><span class="log-sep"> = </span><span class="log-val">${v}</span>`
+    ),
+    ``,
+    `<span class="log-key">── Auth Callback (our endpoint) ────────────</span>`,
+    `  <span class="log-url">${authCallback}</span>`,
+    ``,
+    `<span class="log-dim">Amira will redirect back to our auth callback with nonce, state, and redirect_uri.</span>`,
+  ]);
+
+  setStatus('status-msg-13', 'success', 'Initiating OIDC flow with Amira…');
+
+  setTimeout(() => {
+    const form = document.createElement('form');
+    form.method = 'POST'; form.action = initUrl; form.style.display = 'none';
+    for (const [name, value] of Object.entries(oidcParams)) {
+      const inp = document.createElement('input');
+      inp.type = 'hidden'; inp.name = name; inp.value = value;
+      form.appendChild(inp);
+    }
+    document.body.appendChild(form);
+    form.submit();
+  }, 600);
+});
+</script>
+</body>
+</html>
