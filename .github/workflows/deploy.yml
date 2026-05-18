@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy React App to GitHub Pages
 
 on:
   push:
@@ -26,28 +26,20 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: |
-            lti-tester-react/package-lock.json
-            istation-data-tool/package-lock.json
+          cache-dependency-path: lti-tester-react/package-lock.json
 
-      - name: Install & build LTI Tester
-        run: npm ci && npm run build
+      - name: Install dependencies
+        run: npm ci
         working-directory: lti-tester-react
 
-      - name: Install & build Istation Data Tool
-        run: npm ci && npm run build
-        working-directory: istation-data-tool
-
-      - name: Merge build outputs
-        run: |
-          mkdir -p combined-dist/lti-tester combined-dist/istation-tool
-          cp -r lti-tester-react/dist/. combined-dist/lti-tester/
-          cp -r istation-data-tool/dist/. combined-dist/istation-tool/
+      - name: Build
+        run: npm run build
+        working-directory: lti-tester-react
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: combined-dist
+          path: lti-tester-react/dist
 
   deploy:
     environment:
