@@ -38,17 +38,6 @@ function buildLogEntryHtml(postUrl, postParams, meta, ts) {
   ].join('\n');
 }
 
-function buildResponsePendingHtml() {
-  return `\n\n<span class="log-key">── Response ────────────────────────────────</span>\n  <span class="log-dim">⏳ Awaiting response...</span>`;
-}
-
-function buildResponseHtml(status, statusText, finalUrl) {
-  return `\n\n<span class="log-key">── Response ────────────────────────────────</span>\n` +
-    `  <span class="log-key">status</span><span class="log-sep"> = </span><span class="log-val">${status} ${statusText}</span>\n` +
-    `  <span class="log-key">final_url</span><span class="log-sep"> = </span><span class="log-url">${finalUrl}</span>\n` +
-    `<span class="log-sep">────────────────────────────────────────────</span>`;
-}
-
 function buildResponseCorsHtml() {
   return `\n\n<span class="log-key">── Response ────────────────────────────────</span>\n` +
     `  <span class="log-dim">⚠ Response blocked by browser CORS policy — check the opened tab</span>\n` +
@@ -131,14 +120,14 @@ export default function Lti10Tab() {
 
       const ts = new Date().toLocaleTimeString();
       const entryHtml = buildLogEntryHtml(LAUNCH_URL, postParams, { signingKey, baseString, signature }, ts)
-        + buildResponsePendingHtml();
+        + buildResponseCorsHtml();
 
       setLogEntries(prev => [entryHtml, ...prev]);
       const parsedUrl = new URL(LAUNCH_URL);
       setStatusType('success');
       setStatusMsg(`Launching to ${parsedUrl.hostname} in a new tab…`);
 
-      // Submit form to new tab
+      // Submit form to new tab — single request, no fetch
       const form = document.createElement('form');
       form.method = 'POST'; form.action = LAUNCH_URL; form.target = tabName;
       form.enctype = 'application/x-www-form-urlencoded';
@@ -151,27 +140,6 @@ export default function Lti10Tab() {
       document.body.appendChild(form);
       form.submit();
       document.body.removeChild(form);
-
-      // Fetch for response viewer
-      fetch(LAUNCH_URL, {
-        method: 'POST',
-        mode: 'cors',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(postParams).toString()
-      }).then(res => {
-        const responseHtml = buildResponseHtml(res.status, res.statusText, res.url || LAUNCH_URL);
-        setLogEntries(prev => {
-          const next = [...prev];
-          next[0] = buildLogEntryHtml(LAUNCH_URL, postParams, { signingKey, baseString, signature }, ts) + responseHtml;
-          return next;
-        });
-      }).catch(() => {
-        setLogEntries(prev => {
-          const next = [...prev];
-          next[0] = buildLogEntryHtml(LAUNCH_URL, postParams, { signingKey, baseString, signature }, ts) + buildResponseCorsHtml();
-          return next;
-        });
-      });
     } catch (err) {
       if (newTab) newTab.close();
       setStatusType('error'); setStatusMsg('Signature error: ' + err.message);
